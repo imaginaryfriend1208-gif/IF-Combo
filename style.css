@@ -1,8 +1,7 @@
 /* -- Generic Tab System -- */
 
 /* Base Tab Content */
-.openai-tab-content,
-.user-settings-tab-content {
+.openai-tab-content {
     display: none;
     animation: fadeIn var(--animation-duration-slow, 0.2s) ease-in-out;
 }
@@ -18,8 +17,7 @@
     }
 }
 
-.openai-tab-content.active,
-.user-settings-tab-content.active {
+.openai-tab-content.active {
     display: block;
     margin-top: 0.8em;
     margin-bottom: 0.8em;
@@ -27,8 +25,7 @@
 }
 
 /* Base Tab Buttons */
-.openai-tab-buttons,
-.user-settings-tab-buttons {
+.openai-tab-buttons {
     display: flex;
     position: sticky;
     top: 0;
@@ -45,8 +42,7 @@
     flex-wrap: wrap;
 }
 
-.openai-tab-button,
-.user-settings-tab-button {
+.openai-tab-button {
     flex: 1;
     display: flex;
     align-items: center;
@@ -68,22 +64,19 @@
     min-width: fit-content;
 }
 
-.openai-tab-button:hover,
-.user-settings-tab-button:hover {
+.openai-tab-button:hover {
     opacity: 1;
     transform: translateY(-1px);
 }
 
-.openai-tab-button.active,
-.user-settings-tab-button.active {
+.openai-tab-button.active {
     background: color-mix(in srgb, var(--SmartThemeBodyColor) 15%, transparent);
     color: var(--SmartThemeBodyColor);
     opacity: 1;
     box-shadow: 0 2px 8px color-mix(in srgb, var(--SmartThemeBodyColor) 10%, transparent);
 }
 
-.openai-tab-button i,
-.user-settings-tab-button i {
+.openai-tab-button i {
     font-size: 0.9em;
 }
 
@@ -97,125 +90,11 @@ body:has(.openai-tab-buttons) {
         margin-top: unset;
     }
 }
-
-/* -- User Settings Specific Styles -- */
-
-.user-settings-tab-buttons {
-    margin-top: 0.5em;
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.user-settings-tab-content {
-    padding: 0.3em 0;
-}
-
-.user-settings-tab-content h4 {
-    margin-top: 1em;
-    margin-bottom: 0.6em;
-    color: var(--SmartThemeBodyColor);
-    font-weight: 600;
-    border-bottom: 1px solid color-mix(in srgb, var(--SmartThemeBodyColor) 20%, transparent);
-    padding-bottom: 0.4em;
-}
-
-.user-settings-tab-content h4:first-child {
-    margin-top: 0;
-}
-
-.user-settings-tab-content .inline-drawer {
-    margin: 0.3em 0;
-}
-
-/* Narrow Layout Adjustments */
-.user-settings-tab-content.narrow-layout .flex-container.flexFlowRow {
-    flex-direction: column;
-}
-
-.user-settings-tab-content.narrow-layout .flexBasis48p {
-    flex-basis: 100%;
-}
-
-/* Hide original column structure when tabs are active */
-body:has(.user-settings-tab-buttons) #user-settings-block-content > [name] {
-    display: none;
-}
-
-/* Animation for smooth transitions */
-.user-settings-tab-content .checkbox_label,
-.user-settings-tab-content .flex-container {
-    animation: slideInUp 0.3s ease-out;
-}
-
-@keyframes slideInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Enhanced visual hierarchy */
-.user-settings-tab-content h4 {
-    margin-left: 0;
-    margin-right: 0;
-}
-
-/* Custom CSS block styling in misc tab */
-.user-settings-tab-content #CustomCSS-block {
-    border: 1px solid color-mix(in srgb, var(--SmartThemeBodyColor) 20%, transparent);
-    border-radius: 8px;
-    padding: 1em;
-    background: color-mix(in srgb, var(--SmartThemeBlurTintColor) 50%, transparent);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-}
-
-/* Enhanced spacing for better readability */
-.user-settings-tab-content .checkbox_label {
-    transition: all 0.2s ease;
-}
-
-.user-settings-tab-content .checkbox_label:hover {
-    background: color-mix(in srgb, var(--SmartThemeBodyColor) 5%, transparent);
-    border-radius: 4px;
-    padding-left: 0.5em;
-    margin-left: -0.5em;
-}
-
-#user-settings-tab-content-theme {
-    .flex-container.flexFlowColumn.flexNoGap hr {
-        display: none;
-    }
-
-    [name="themeElements"] {
-        margin-top: 0.5em;
-    }
-    [name="FontBlurChatWidthBlock"] {
-        margin-top: 0.8em;
-        margin-bottom: 1.2em;
-        border-bottom: 1px dotted color-mix(in srgb, var(--SmartThemeBodyColor) 25%, transparent);
-        padding-bottom: 1.5em;
-    }
-
-    #color-picker-block {
-        display: grid;
-        gap: 10px;
-    }
-    #color-picker-block {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 10px;
-
-        @media screen and (max-width: 1000px) {
-            grid-template-columns: 1fr;
-        }
-    }
-}
 #movingUIreset {
     width: fit-content;
+}
+
+#ChatCompletionTabs-drawer label[for="ChatCompletionTabs-enabled"] {
+    margin-top: 0.75em;
+    margin-bottom: 0.75em;
 }
