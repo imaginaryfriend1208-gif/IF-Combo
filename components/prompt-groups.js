@@ -29,6 +29,7 @@ export class PromptGroupManager {
         this.enabled = true;
         this.grouped = false;
         this.mutating = false;
+        this.draggingId = null;
         this.originalOrder = [];
         this.observer = null;
         this.menuElement = null;
@@ -193,6 +194,7 @@ export class PromptGroupManager {
                     const li = byId.get(id);
                     li.classList.toggle('cct-group-hidden', collapsed);
                     this.ensureAssignButton(li);
+                    this.bindPromptDnd(li);
                     list.appendChild(li);
                 }
             }
@@ -220,6 +222,7 @@ export class PromptGroupManager {
                 const li = byId.get(id);
                 if (li) {
                     li.classList.remove('cct-group-hidden');
+                    li.draggable = false; // hand mouse-dragging back to jQuery sortable
                     list.appendChild(li);
                 }
             }
@@ -255,6 +258,24 @@ export class PromptGroupManager {
 
         left.addEventListener('click', () => this.toggleCollapse(group.id));
 
+        // Allow dropping prompts onto the header to assign them to this group
+        li.addEventListener('dragover', (e) => {
+            if (!this.draggingId) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            li.classList.add('cct-drop-target');
+        });
+        li.addEventListener('dragleave', () => li.classList.remove('cct-drop-target'));
+        li.addEventListener('drop', (e) => {
+            if (!this.draggingId) return;
+            e.preventDefault();
+            e.stopPropagation();
+            li.classList.remove('cct-drop-target');
+            const id = this.draggingId;
+            this.draggingId = null;
+            this.assignPrompt(id, isUngrouped ? null : group.id);
+        });
+
         if (!isUngrouped) {
             const controls = document.createElement('span');
             controls.classList.add('cct-group-header-controls');
@@ -280,6 +301,56 @@ export class PromptGroupManager {
         }
 
         return li;
+    }
+
+    /**
+     * Native HTML5 drag & drop for assigning prompts to groups while the
+     * group view is active (jQuery sortable is disabled in that state).
+     * Dropping onto a group header — or onto another prompt — assigns the
+     * dragged prompt to that group.
+     */
+    bindPromptDnd(li) {
+        li.draggable = true; // re-set every apply(); teardown() clears it
+
+        if (li.dataset.cctDndBound) return;
+        li.dataset.cctDndBound = '1';
+
+        li.addEventListener('dragstart', (e) => {
+            if (!this.grouped) {
+                e.preventDefault();
+                return;
+            }
+            this.draggingId = li.dataset.pmIdentifier;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', this.draggingId);
+            li.classList.add('cct-dragging');
+        });
+
+        li.addEventListener('dragend', () => {
+            li.classList.remove('cct-dragging');
+            this.draggingId = null;
+            document.querySelectorAll('.cct-drop-target')
+                .forEach(el => el.classList.remove('cct-drop-target'));
+        });
+
+        // Dropping onto another prompt assigns to that prompt's group
+        li.addEventListener('dragover', (e) => {
+            if (!this.draggingId || this.draggingId === li.dataset.pmIdentifier) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            li.classList.add('cct-drop-target');
+        });
+        li.addEventListener('dragleave', () => li.classList.remove('cct-drop-target'));
+        li.addEventListener('drop', (e) => {
+            if (!this.draggingId || this.draggingId === li.dataset.pmIdentifier) return;
+            e.preventDefault();
+            e.stopPropagation();
+            li.classList.remove('cct-drop-target');
+            const id = this.draggingId;
+            this.draggingId = null;
+            const targetGroup = this.getPresetData().assignments[li.dataset.pmIdentifier] ?? null;
+            this.assignPrompt(id, targetGroup);
+        });
     }
 
     ensureAssignButton(li) {

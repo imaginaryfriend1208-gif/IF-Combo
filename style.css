@@ -217,6 +217,18 @@ body:has(.openai-tab-buttons) {
     display: none !important;
 }
 
+/* Drag & drop assignment */
+
+li[data-pm-identifier].cct-dragging {
+    opacity: 0.4;
+}
+
+.cct-drop-target {
+    outline: 2px dashed color-mix(in srgb, var(--SmartThemeBodyColor) 60%, transparent) !important;
+    outline-offset: -2px;
+    background: color-mix(in srgb, var(--SmartThemeBodyColor) 18%, transparent) !important;
+}
+
 .cct-assign-action {
     cursor: pointer;
     margin-right: 4px;
