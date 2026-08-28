@@ -12,16 +12,29 @@ import { t } from '../../../i18n.js';
 
 // Import components
 import { OpenAITabManager } from './components/openai-tab-manager.js';
+import { ContextLockManager } from './components/context-lock.js';
+import { PromptGroupManager } from './components/prompt-groups.js';
 
 /**
  * Default settings configuration
  */
 const defaultSettings = {
-    enabled: true
+    enabled: true,
+    contextLock: {
+        enabled: false,
+        size: 100000, // one of 100000/150000/180000/200000 or 'custom'
+        customSize: 120000
+    },
+    promptGroups: {
+        viewEnabled: true,
+        presets: {} // { [presetName]: { groups: [{id, name, collapsed}], assignments: { [promptIdentifier]: groupId } } }
+    }
 };
 
 // Global tab manager instances
 let openAITabManager = null;
+let contextLockManager = null;
+let promptGroupManager = null;
 
 /**
  * Main extension initialization function
@@ -35,10 +48,16 @@ let openAITabManager = null;
         context.extensionSettings[settingsKey] = { ...defaultSettings };
     }
 
-    // Ensure all default setting keys exist
-    for (const key of Object.keys(defaultSettings)) {
+    // Ensure all default setting keys exist (one level deep for nested objects)
+    for (const [key, value] of Object.entries(defaultSettings)) {
         if (context.extensionSettings[settingsKey][key] === undefined) {
-            context.extensionSettings[settingsKey][key] = defaultSettings[key];
+            context.extensionSettings[settingsKey][key] = structuredClone(value);
+        } else if (value && typeof value === 'object' && !Array.isArray(value)) {
+            for (const [subKey, subValue] of Object.entries(value)) {
+                if (context.extensionSettings[settingsKey][key][subKey] === undefined) {
+                    context.extensionSettings[settingsKey][key][subKey] = structuredClone(subValue);
+                }
+            }
         }
     }
 
@@ -77,6 +96,20 @@ function initializeOpenAITabs() {
 
     // Set enabled state based on settings
     openAITabManager.setEnabled(settings.enabled);
+
+    if (!contextLockManager) {
+        contextLockManager = new ContextLockManager({
+            getSettings: () => context.extensionSettings[settingsKey].contextLock,
+            saveSettings: () => context.saveSettingsDebounced(),
+        });
+    }
+
+    if (!promptGroupManager) {
+        promptGroupManager = new PromptGroupManager({
+            getSettings: () => context.extensionSettings[settingsKey].promptGroups,
+            saveSettings: () => context.saveSettingsDebounced(),
+        });
+    }
 }
 
 /**
@@ -173,6 +206,8 @@ setTimeout(() => {
 
 // Export for debugging purposes
 window.ChatCompletionTabs = {
-    openAITabManager,
+    get openAITabManager() { return openAITabManager; },
+    get contextLockManager() { return contextLockManager; },
+    get promptGroupManager() { return promptGroupManager; },
     VERSION
 };

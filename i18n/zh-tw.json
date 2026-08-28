@@ -1,5 +1,17 @@
 {
     "Enable Chat Completion Tabs": "啟用聊天補全分頁",
     "Parameters": "參數",
-    "Prompts": "提示詞"
+    "Prompts": "提示詞",
+    "Lock Context Size": "鎖定上下文長度",
+    "Custom": "自訂",
+    "tokens": "權杖",
+    "Ungrouped": "未分組",
+    "Groups": "分組",
+    "New group": "新增分組",
+    "Group name": "分組名稱",
+    "Rename group": "重新命名分組",
+    "Delete group": "刪除分組",
+    "Assign to group": "指派到分組",
+    "Remove from group": "從分組中移除",
+    "Toggle group view": "切換分組檢視"
 }

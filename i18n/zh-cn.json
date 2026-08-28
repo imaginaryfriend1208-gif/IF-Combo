@@ -1,5 +1,17 @@
 {
     "Enable Chat Completion Tabs": "启用聊天补全标签页",
     "Parameters": "参数",
-    "Prompts": "提示词"
+    "Prompts": "提示词",
+    "Lock Context Size": "锁定上下文长度",
+    "Custom": "自定义",
+    "tokens": "令牌",
+    "Ungrouped": "未分组",
+    "Groups": "分组",
+    "New group": "新建分组",
+    "Group name": "分组名称",
+    "Rename group": "重命名分组",
+    "Delete group": "删除分组",
+    "Assign to group": "分配到分组",
+    "Remove from group": "从分组中移除",
+    "Toggle group view": "切换分组视图"
 }
