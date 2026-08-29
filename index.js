@@ -5,7 +5,7 @@
 // Global settings and constants
 const EXTENSION_NAME = 'IF Combo';
 const settingsKey = 'ChatCompletionTabs';
-const VERSION = "1.1.0";
+const VERSION = "1.2.0";
 
 // Import required functions
 import { t } from '../../../i18n.js';
@@ -14,7 +14,7 @@ import { t } from '../../../i18n.js';
 import { OpenAITabManager } from './components/openai-tab-manager.js';
 import { ContextLockManager } from './components/context-lock.js';
 import { PromptGroupManager } from './components/prompt-groups.js';
-import { ChatFileDropdownManager } from './components/chat-file-dropdown.js';
+import { StatusBarManager } from './components/status-bar.js';
 
 /**
  * Default settings configuration
@@ -36,7 +36,7 @@ const defaultSettings = {
 let openAITabManager = null;
 let contextLockManager = null;
 let promptGroupManager = null;
-let chatFileDropdownManager = null;
+let statusBarManager = null;
 
 /**
  * Main extension initialization function
@@ -113,10 +113,10 @@ function initializeOpenAITabs() {
         });
     }
 
-    if (!chatFileDropdownManager) {
-        chatFileDropdownManager = new ChatFileDropdownManager();
+    if (!statusBarManager) {
+        statusBarManager = new StatusBarManager();
     }
-    chatFileDropdownManager.setEnabled(settings.enabled);
+    statusBarManager.setEnabled(settings.enabled);
 }
 
 /**
@@ -180,8 +180,8 @@ function renderExtensionSettings() {
         if (openAITabManager) {
             openAITabManager.setEnabled(settings.enabled);
         }
-        if (chatFileDropdownManager) {
-            chatFileDropdownManager.setEnabled(settings.enabled);
+        if (statusBarManager) {
+            statusBarManager.setEnabled(settings.enabled);
         }
 
         context.saveSettingsDebounced();
@@ -219,6 +219,6 @@ window.ChatCompletionTabs = {
     get openAITabManager() { return openAITabManager; },
     get contextLockManager() { return contextLockManager; },
     get promptGroupManager() { return promptGroupManager; },
-    get chatFileDropdownManager() { return chatFileDropdownManager; },
+    get statusBarManager() { return statusBarManager; },
     VERSION
 };

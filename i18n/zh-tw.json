@@ -14,10 +14,11 @@
     "Assign to group": "指派到分組",
     "Remove from group": "從分組中移除",
     "Toggle group view": "切換分組檢視",
-    "Chats": "聊天記錄",
-    "Manage Chat Files": "管理聊天檔案",
-    "Loading chats...": "正在載入聊天記錄……",
-    "Could not load chats": "無法載入聊天記錄",
-    "No chats found": "找不到聊天記錄",
-    "Could not open chat": "無法開啟聊天記錄"
+    "Model": "模型",
+    "Persona": "使用者角色",
+    "No model": "無模型",
+    "No chat": "無聊天",
+    "No persona": "無使用者角色",
+    "Not connected": "未連線",
+    "Open chat manager": "開啟聊天管理器"
 }

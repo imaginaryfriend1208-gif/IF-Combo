@@ -5,7 +5,7 @@ IF Combo bundles practical SillyTavern interface tools in one extension:
 - Parameters/Prompts tabs keep the Chat Completion preset editor tidy.
 - Locked Context Size keeps the configured context limit stable.
 - Prompt Groups organize prompts without changing their injection order.
-- The topbar chat button lists every chat for the current character or group and switches chats without a permanent tab strip. Use **Manage Chat Files** at the bottom for native rename, delete, import, and export actions.
+- The status bar below the top bar shows the active model, chat, and persona at a glance. Click the chat name to open the chat manager.
 
 <img src=".github/preview.png" alt="Extension preview" width="400" height="auto">
 
