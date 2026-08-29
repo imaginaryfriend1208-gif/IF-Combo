@@ -1,3 +1,164 @@
+/* -- Chat File Dropdown -- */
+
+.cct-chat-dropdown {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.cct-chat-dropdown[hidden],
+.cct-chat-dropdown-menu[hidden] {
+    display: none !important;
+}
+
+.cct-chat-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    min-height: 36px;
+    margin: 0;
+    padding: 6px 9px;
+    color: var(--SmartThemeBodyColor);
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.cct-chat-dropdown-toggle:hover,
+.cct-chat-dropdown-toggle[aria-expanded="true"] {
+    background: color-mix(in srgb, var(--SmartThemeBodyColor) 15%, transparent);
+}
+
+.cct-chat-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    width: min(420px, calc(100vw - 16px));
+    max-height: min(70vh, 640px);
+    overflow: hidden;
+    color: var(--SmartThemeBodyColor);
+    background: var(--SmartThemeBlurTintColor, rgba(20, 20, 20, 0.96));
+    backdrop-filter: blur(calc(var(--SmartThemeBlurStrength, 10px)));
+    -webkit-backdrop-filter: blur(calc(var(--SmartThemeBlurStrength, 10px)));
+    border: 1px solid color-mix(in srgb, var(--SmartThemeBodyColor) 20%, transparent);
+    border-radius: 10px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+}
+
+.cct-chat-dropdown-header {
+    padding: 10px 12px 8px;
+    font-size: calc(var(--mainFontSize, 1rem) * 0.9);
+    font-weight: 600;
+    border-bottom: 1px solid color-mix(in srgb, var(--SmartThemeBodyColor) 12%, transparent);
+}
+
+.cct-chat-dropdown-list {
+    min-height: 48px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 4px;
+}
+
+.cct-chat-dropdown-item,
+.cct-chat-dropdown-manage {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+    padding: 8px 10px;
+    color: var(--SmartThemeBodyColor);
+    text-align: left;
+    background: transparent;
+    border: 0;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.cct-chat-dropdown-item:hover,
+.cct-chat-dropdown-item:focus-visible,
+.cct-chat-dropdown-manage:hover,
+.cct-chat-dropdown-manage:focus-visible {
+    background: color-mix(in srgb, var(--SmartThemeBodyColor) 12%, transparent);
+    outline: none;
+}
+
+.cct-chat-dropdown-item.cct-active {
+    background: color-mix(in srgb, var(--SmartThemeBodyColor) 18%, transparent);
+    font-weight: 600;
+}
+
+.cct-chat-dropdown-item:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
+
+.cct-chat-dropdown-item > i,
+.cct-chat-dropdown-manage > i {
+    flex: 0 0 16px;
+    text-align: center;
+    opacity: 0.75;
+}
+
+.cct-chat-dropdown-item-text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.cct-chat-dropdown-item-name,
+.cct-chat-dropdown-item-preview {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cct-chat-dropdown-item-preview {
+    margin-top: 2px;
+    font-size: calc(var(--mainFontSize, 1rem) * 0.75);
+    font-weight: 400;
+    opacity: 0.6;
+}
+
+.cct-chat-dropdown-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 72px;
+    padding: 12px;
+    text-align: center;
+    opacity: 0.65;
+}
+
+.cct-chat-dropdown-status-error {
+    color: var(--fullred, #d33);
+    opacity: 1;
+}
+
+.cct-chat-dropdown-manage {
+    flex: 0 0 auto;
+    border-top: 1px solid color-mix(in srgb, var(--SmartThemeBodyColor) 12%, transparent);
+    border-radius: 0;
+}
+
+@media (max-width: 600px) {
+    .cct-chat-dropdown-menu {
+        position: fixed;
+        top: var(--topBarBlockSize, 50px);
+        right: 8px;
+        left: 8px;
+        width: auto;
+        max-height: calc(100dvh - var(--topBarBlockSize, 50px) - 16px);
+    }
+}
+
 /* -- Generic Tab System -- */
 
 /* Base Tab Content */

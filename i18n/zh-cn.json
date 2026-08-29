@@ -1,5 +1,5 @@
 {
-    "Enable Chat Completion Tabs": "启用聊天补全标签页",
+    "Enable IF Combo": "启用 IF Combo",
     "Parameters": "参数",
     "Prompts": "提示词",
     "Lock Context Size": "锁定上下文长度",
@@ -13,5 +13,11 @@
     "Delete group": "删除分组",
     "Assign to group": "分配到分组",
     "Remove from group": "从分组中移除",
-    "Toggle group view": "切换分组视图"
+    "Toggle group view": "切换分组视图",
+    "Chats": "聊天记录",
+    "Manage Chat Files": "管理聊天文件",
+    "Loading chats...": "正在加载聊天记录……",
+    "Could not load chats": "无法加载聊天记录",
+    "No chats found": "未找到聊天记录",
+    "Could not open chat": "无法打开聊天记录"
 }

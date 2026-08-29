@@ -1,11 +1,11 @@
 /**
- * Chat Completion Tabs extension for SillyTavern
+ * IF Combo extension for SillyTavern
  */
 
 // Global settings and constants
-const EXTENSION_NAME = 'Chat Completion Tabs';
+const EXTENSION_NAME = 'IF Combo';
 const settingsKey = 'ChatCompletionTabs';
-const VERSION = "1.0.0";
+const VERSION = "1.1.0";
 
 // Import required functions
 import { t } from '../../../i18n.js';
@@ -14,6 +14,7 @@ import { t } from '../../../i18n.js';
 import { OpenAITabManager } from './components/openai-tab-manager.js';
 import { ContextLockManager } from './components/context-lock.js';
 import { PromptGroupManager } from './components/prompt-groups.js';
+import { ChatFileDropdownManager } from './components/chat-file-dropdown.js';
 
 /**
  * Default settings configuration
@@ -35,6 +36,7 @@ const defaultSettings = {
 let openAITabManager = null;
 let contextLockManager = null;
 let promptGroupManager = null;
+let chatFileDropdownManager = null;
 
 /**
  * Main extension initialization function
@@ -110,6 +112,11 @@ function initializeOpenAITabs() {
             saveSettings: () => context.saveSettingsDebounced(),
         });
     }
+
+    if (!chatFileDropdownManager) {
+        chatFileDropdownManager = new ChatFileDropdownManager();
+    }
+    chatFileDropdownManager.setEnabled(settings.enabled);
 }
 
 /**
@@ -139,7 +146,7 @@ function renderExtensionSettings() {
     inlineDrawerToggle.classList.add('inline-drawer-toggle', 'inline-drawer-header');
 
     const extensionNameElement = document.createElement('b');
-    extensionNameElement.textContent = EXTENSION_NAME;
+    extensionNameElement.textContent = `${EXTENSION_NAME} v${VERSION}`;
 
     const inlineDrawerIcon = document.createElement('div');
     inlineDrawerIcon.classList.add('inline-drawer-icon', 'fa-solid', 'fa-circle-chevron-down', 'down');
@@ -173,12 +180,15 @@ function renderExtensionSettings() {
         if (openAITabManager) {
             openAITabManager.setEnabled(settings.enabled);
         }
+        if (chatFileDropdownManager) {
+            chatFileDropdownManager.setEnabled(settings.enabled);
+        }
 
         context.saveSettingsDebounced();
     });
 
     const enabledCheckboxText = document.createElement('span');
-    enabledCheckboxText.textContent = t`Enable Chat Completion Tabs`;
+    enabledCheckboxText.textContent = t`Enable IF Combo`;
 
     enabledCheckboxLabel.append(enabledCheckbox, enabledCheckboxText);
     inlineDrawerContent.append(enabledCheckboxLabel);
@@ -209,5 +219,6 @@ window.ChatCompletionTabs = {
     get openAITabManager() { return openAITabManager; },
     get contextLockManager() { return contextLockManager; },
     get promptGroupManager() { return promptGroupManager; },
+    get chatFileDropdownManager() { return chatFileDropdownManager; },
     VERSION
 };

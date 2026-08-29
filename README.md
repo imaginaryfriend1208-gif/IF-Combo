@@ -1,6 +1,11 @@
-# Chat Completion Tabs
+# IF Combo
 
-Lightweight SillyTavern extension that adds Parameters/Prompts tabs to the Chat Completion presets panel. Keep the OpenAI preset editor tidy while quickly switching between the controls you tweak the most.
+IF Combo bundles practical SillyTavern interface tools in one extension:
+
+- Parameters/Prompts tabs keep the Chat Completion preset editor tidy.
+- Locked Context Size keeps the configured context limit stable.
+- Prompt Groups organize prompts without changing their injection order.
+- The topbar chat button lists every chat for the current character or group and switches chats without a permanent tab strip. Use **Manage Chat Files** at the bottom for native rename, delete, import, and export actions.
 
 <img src=".github/preview.png" alt="Extension preview" width="400" height="auto">
 
@@ -8,7 +13,7 @@ Lightweight SillyTavern extension that adds Parameters/Prompts tabs to the Chat 
 
 Go to **Extensions > Install extension** , then paste the following Git URL:
 ```
-https://github.com/RivelleDays/SillyTavern-ChatCompletionTabs
+https://github.com/imaginaryfriend1208-gif/IF-Combo
 ```
 
 #  License
