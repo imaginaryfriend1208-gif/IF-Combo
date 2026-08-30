@@ -25,5 +25,7 @@
     "No prompts": "無提示詞",
     "Insert prompt": "插入提示詞",
     "Already inserted": "已插入",
-    "Delete prompt": "刪除提示詞"
+    "Delete prompt": "刪除提示詞",
+    "Input history": "輸入歷史",
+    "No previous inputs": "無歷史輸入"
 }
