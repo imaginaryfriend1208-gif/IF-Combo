@@ -5,7 +5,7 @@
 // Global settings and constants
 const EXTENSION_NAME = 'IF Combo';
 const settingsKey = 'ChatCompletionTabs';
-const VERSION = "1.2.0";
+const VERSION = "1.3.0";
 
 // Import required functions
 import { t } from '../../../i18n.js';
@@ -15,6 +15,7 @@ import { OpenAITabManager } from './components/openai-tab-manager.js';
 import { ContextLockManager } from './components/context-lock.js';
 import { PromptGroupManager } from './components/prompt-groups.js';
 import { StatusBarManager } from './components/status-bar.js';
+import { PromptPickerManager } from './components/prompt-picker.js';
 
 /**
  * Default settings configuration
@@ -37,6 +38,7 @@ let openAITabManager = null;
 let contextLockManager = null;
 let promptGroupManager = null;
 let statusBarManager = null;
+let promptPickerManager = null;
 
 /**
  * Main extension initialization function
@@ -117,6 +119,11 @@ function initializeOpenAITabs() {
         statusBarManager = new StatusBarManager();
     }
     statusBarManager.setEnabled(settings.enabled);
+
+    if (!promptPickerManager) {
+        promptPickerManager = new PromptPickerManager();
+    }
+    promptPickerManager.setEnabled(settings.enabled);
 }
 
 /**
@@ -183,6 +190,9 @@ function renderExtensionSettings() {
         if (statusBarManager) {
             statusBarManager.setEnabled(settings.enabled);
         }
+        if (promptPickerManager) {
+            promptPickerManager.setEnabled(settings.enabled);
+        }
 
         context.saveSettingsDebounced();
     });
@@ -220,5 +230,6 @@ window.ChatCompletionTabs = {
     get contextLockManager() { return contextLockManager; },
     get promptGroupManager() { return promptGroupManager; },
     get statusBarManager() { return statusBarManager; },
+    get promptPickerManager() { return promptPickerManager; },
     VERSION
 };

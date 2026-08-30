@@ -20,5 +20,10 @@
     "No chat": "無聊天",
     "No persona": "無使用者角色",
     "Not connected": "未連線",
-    "Open chat manager": "開啟聊天管理器"
+    "Open chat manager": "開啟聊天管理器",
+    "Select a prompt": "選擇提示詞",
+    "No prompts": "無提示詞",
+    "Insert prompt": "插入提示詞",
+    "Already inserted": "已插入",
+    "Delete prompt": "刪除提示詞"
 }

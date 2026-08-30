@@ -6,6 +6,7 @@ IF Combo bundles practical SillyTavern interface tools in one extension:
 - Locked Context Size keeps the configured context limit stable.
 - Prompt Groups organize prompts without changing their injection order.
 - The status bar below the top bar shows the active model, chat, and persona at a glance. Click the chat name to open the chat manager.
+- The prompt picker replaces the prompt dropdown in the preset editor footer with inline insert/delete buttons on each row; already-inserted prompts show a check mark instead of the insert button.
 
 <img src=".github/preview.png" alt="Extension preview" width="400" height="auto">
 
