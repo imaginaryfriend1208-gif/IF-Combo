@@ -5,7 +5,7 @@
 // Global settings and constants
 const EXTENSION_NAME = 'IF Combo';
 const settingsKey = 'ChatCompletionTabs';
-const VERSION = "1.4.0";
+const VERSION = "1.5.0";
 
 // Import required functions
 import { t } from '../../../i18n.js';
@@ -13,7 +13,7 @@ import { t } from '../../../i18n.js';
 // Import components
 import { OpenAITabManager } from './components/openai-tab-manager.js';
 import { ContextLockManager } from './components/context-lock.js';
-import { PromptGroupManager } from './components/prompt-groups.js';
+import { CompactParameterManager } from './components/compact-parameters.js';
 import { StatusBarManager } from './components/status-bar.js';
 import { PromptPickerManager } from './components/prompt-picker.js';
 import { InputHistoryManager } from './components/input-history.js';
@@ -27,17 +27,13 @@ const defaultSettings = {
         enabled: false,
         size: 100000, // one of 100000/150000/180000/200000 or 'custom'
         customSize: 120000
-    },
-    promptGroups: {
-        viewEnabled: true,
-        presets: {} // { [presetName]: { groups: [{id, name, collapsed}], assignments: { [promptIdentifier]: groupId } } }
     }
 };
 
 // Global tab manager instances
 let openAITabManager = null;
 let contextLockManager = null;
-let promptGroupManager = null;
+let compactParameterManager = null;
 let statusBarManager = null;
 let promptPickerManager = null;
 let inputHistoryManager = null;
@@ -110,12 +106,10 @@ function initializeOpenAITabs() {
         });
     }
 
-    if (!promptGroupManager) {
-        promptGroupManager = new PromptGroupManager({
-            getSettings: () => context.extensionSettings[settingsKey].promptGroups,
-            saveSettings: () => context.saveSettingsDebounced(),
-        });
+    if (!compactParameterManager) {
+        compactParameterManager = new CompactParameterManager();
     }
+    compactParameterManager.setEnabled(settings.enabled);
 
     if (!statusBarManager) {
         statusBarManager = new StatusBarManager();
@@ -194,6 +188,9 @@ function renderExtensionSettings() {
         if (openAITabManager) {
             openAITabManager.setEnabled(settings.enabled);
         }
+        if (compactParameterManager) {
+            compactParameterManager.setEnabled(settings.enabled);
+        }
         if (statusBarManager) {
             statusBarManager.setEnabled(settings.enabled);
         }
@@ -238,7 +235,7 @@ setTimeout(() => {
 window.ChatCompletionTabs = {
     get openAITabManager() { return openAITabManager; },
     get contextLockManager() { return contextLockManager; },
-    get promptGroupManager() { return promptGroupManager; },
+    get compactParameterManager() { return compactParameterManager; },
     get statusBarManager() { return statusBarManager; },
     get promptPickerManager() { return promptPickerManager; },
     get inputHistoryManager() { return inputHistoryManager; },
