@@ -20,7 +20,7 @@ export const DEFAULT_IMAGE_READER_PROMPT = [
 export class ImageReaderManager {
     /**
      * @param {object} options
-     * @param {() => object} options.getSettings - returns imageReader settings { enabled, profileId, prompt, maxTokens, hideImagesFromModel, template }
+     * @param {() => object} options.getSettings - returns imageReader settings { profileId, prompt, maxTokens, hideImagesFromModel, template }
      * @param {() => void} options.saveSettings - persists settings
      */
     constructor({ getSettings, saveSettings }) {
@@ -41,7 +41,7 @@ export class ImageReaderManager {
     }
 
     isActive() {
-        return this.enabled && !!this.getSettings()?.enabled;
+        return this.enabled;
     }
 
     bindEvents() {
@@ -217,16 +217,11 @@ export class ImageReaderManager {
         block.id = `${SETTINGS_PREFIX}-block`;
         block.classList.add('cct-image-reader-block');
 
-        const heading = document.createElement('h4');
-        heading.textContent = t`Image Reader`;
-        block.append(heading);
-
         const hint = document.createElement('small');
         hint.classList.add('cct-image-reader-hint');
         hint.textContent = t`Describes every uploaded image with a vision model from a saved connection profile and appends the description to the message.`;
         block.append(hint);
 
-        block.append(this.buildCheckbox('enabled', t`Enable Image Reader`, settings));
         block.append(this.buildCheckbox('hideImagesFromModel', t`Send description only (do not send raw image to main model)`, settings));
 
         // Profile dropdown

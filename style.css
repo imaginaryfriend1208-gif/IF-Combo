@@ -506,13 +506,6 @@ body:has(.openai-tab-buttons) {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    margin-top: 10px;
-    padding-top: 8px;
-    border-top: 1px solid color-mix(in srgb, var(--SmartThemeBodyColor) 12%, transparent);
-}
-
-.cct-image-reader-block h4 {
-    margin: 0;
 }
 
 .cct-image-reader-hint {
@@ -565,4 +558,35 @@ body:has(.openai-tab-buttons) {
     font-size: calc(var(--mainFontSize, 1rem) * 0.85);
     text-decoration: none;
     color: inherit;
+}
+
+/* -- Version badge -- */
+
+.cct-version-badge {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 4px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    font-size: 0.7em;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #1a1400;
+    background: #f5c518;
+    border: 1px solid #c99a00;
+}
+
+/* -- Feature sub-panel (e.g. Image Reader settings) -- */
+
+.cct-feature-panel {
+    margin: 4px 0 8px 22px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid color-mix(in srgb, var(--SmartThemeQuoteColor, #f5c518) 45%, transparent);
+    border-left: 3px solid var(--SmartThemeQuoteColor, #f5c518);
+    background: color-mix(in srgb, var(--SmartThemeBlurTintColor, rgba(20, 20, 20, 0.9)) 70%, transparent);
+}
+
+.cct-feature-panel[hidden] {
+    display: none;
 }

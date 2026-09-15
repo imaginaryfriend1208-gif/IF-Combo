@@ -20,7 +20,6 @@
     "Input history": "输入历史",
     "No previous inputs": "无历史输入",
     "Image Reader": "图片阅读器",
-    "Enable Image Reader": "启用图片阅读器",
     "Describes every uploaded image with a vision model from a saved connection profile and appends the description to the message.": "使用已保存连接配置中的视觉模型描述每张上传的图片，并将描述附加到消息中。",
     "Send description only (do not send raw image to main model)": "仅发送描述（不向主模型发送原始图片）",
     "Vision connection profile": "视觉连接配置",

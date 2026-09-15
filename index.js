@@ -31,7 +31,7 @@ const defaultSettings = {
         statusBar: true,
         promptPicker: true,
         inputHistory: true,
-        imageReader: true,
+        imageReader: false,
     },
     contextLock: {
         enabled: false,
@@ -39,7 +39,6 @@ const defaultSettings = {
         customSize: 120000
     },
     imageReader: {
-        enabled: false,
         profileId: null,
         prompt: DEFAULT_IMAGE_READER_PROMPT,
         maxTokens: 2048,
@@ -199,7 +198,12 @@ function renderExtensionSettings() {
     inlineDrawerToggle.classList.add('inline-drawer-toggle', 'inline-drawer-header');
 
     const extensionNameElement = document.createElement('b');
-    extensionNameElement.textContent = `${EXTENSION_NAME} v${VERSION}`;
+    extensionNameElement.textContent = EXTENSION_NAME;
+
+    const versionBadge = document.createElement('span');
+    versionBadge.classList.add('cct-version-badge');
+    versionBadge.textContent = `v${VERSION}`;
+    extensionNameElement.append(' ', versionBadge);
 
     const inlineDrawerIcon = document.createElement('div');
     inlineDrawerIcon.classList.add('inline-drawer-icon', 'fa-solid', 'fa-circle-chevron-down', 'down');
@@ -252,22 +256,29 @@ function renderExtensionSettings() {
         checkbox.type = 'checkbox';
         checkbox.id = `${settingsKey}-feature-${feature.key}`;
         checkbox.checked = settings.features[feature.key] !== false;
-        checkbox.addEventListener('change', () => {
-            settings.features[feature.key] = checkbox.checked;
-            feature.apply(isFeatureEnabled(feature.key));
-            context.saveSettingsDebounced();
-        });
         const text = document.createElement('span');
         text.textContent = feature.label();
         label.append(checkbox, text);
         featureList.append(label);
+
+        // Image Reader settings panel, shown only while the feature is ticked
+        let subPanel = null;
+        if (feature.key === 'imageReader' && imageReaderManager) {
+            subPanel = document.createElement('div');
+            subPanel.classList.add('cct-feature-panel');
+            subPanel.hidden = !checkbox.checked;
+            imageReaderManager.renderSettings(subPanel);
+            featureList.append(subPanel);
+        }
+
+        checkbox.addEventListener('change', () => {
+            settings.features[feature.key] = checkbox.checked;
+            feature.apply(isFeatureEnabled(feature.key));
+            if (subPanel) subPanel.hidden = !checkbox.checked;
+            context.saveSettingsDebounced();
+        });
     }
     inlineDrawerContent.append(featureList);
-
-    // Image Reader controls
-    if (imageReaderManager) {
-        imageReaderManager.renderSettings(inlineDrawerContent);
-    }
 
     // Contact / support links
     const linksRow = document.createElement('div');
