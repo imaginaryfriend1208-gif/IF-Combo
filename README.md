@@ -9,6 +9,10 @@ IF Combo bundles practical SillyTavern interface tools in one extension:
 - The prompt picker replaces the prompt dropdown in the preset editor footer with inline insert/delete buttons on each row; already-inserted prompts show a check mark instead of the insert button.
 - The input history button next to Send reopens previously sent inputs (stored locally, most recent first).
 
+- Image Reader describes every uploaded image with a vision model from a saved Connection Manager profile and appends the description to the message, optionally sending only the description (no raw image) to the main model.
+
+- Each feature can be toggled individually in the extension settings drawer.
+
 <img src=".github/preview.png" alt="Extension preview" width="400" height="auto">
 
 ## Installation

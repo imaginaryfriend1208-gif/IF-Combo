@@ -499,3 +499,51 @@ body:has(.openai-tab-buttons) {
         width: 52px !important;
     }
 }
+
+/* -- Image Reader -- */
+
+.cct-image-reader-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid color-mix(in srgb, var(--SmartThemeBodyColor) 12%, transparent);
+}
+
+.cct-image-reader-block h4 {
+    margin: 0;
+}
+
+.cct-image-reader-hint {
+    opacity: 0.7;
+}
+
+.cct-image-reader-block label:not(.checkbox_label) {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.cct-image-reader-prompt {
+    resize: vertical;
+    min-height: 90px;
+}
+
+.cct-image-reader-reset {
+    align-self: flex-start;
+}
+
+/* -- Feature toggles -- */
+
+.cct-feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 6px 0 4px 18px;
+}
+
+.cct-feature-list.cct-features-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}

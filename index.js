@@ -5,7 +5,7 @@
 // Global settings and constants
 const EXTENSION_NAME = 'IF Combo';
 const settingsKey = 'ChatCompletionTabs';
-const VERSION = "1.5.0";
+const VERSION = "1.6.0";
 
 // Import required functions
 import { t } from '../../../i18n.js';
@@ -17,16 +17,34 @@ import { CompactParameterManager } from './components/compact-parameters.js';
 import { StatusBarManager } from './components/status-bar.js';
 import { PromptPickerManager } from './components/prompt-picker.js';
 import { InputHistoryManager } from './components/input-history.js';
+import { ImageReaderManager, DEFAULT_IMAGE_READER_PROMPT } from './components/image-reader.js';
 
 /**
  * Default settings configuration
  */
 const defaultSettings = {
     enabled: true,
+    features: {
+        tabs: true,
+        contextLock: true,
+        compactParameters: true,
+        statusBar: true,
+        promptPicker: true,
+        inputHistory: true,
+        imageReader: true,
+    },
     contextLock: {
         enabled: false,
         size: 100000, // one of 100000/150000/180000/200000 or 'custom'
         customSize: 120000
+    },
+    imageReader: {
+        enabled: false,
+        profileId: null,
+        prompt: DEFAULT_IMAGE_READER_PROMPT,
+        maxTokens: 2048,
+        hideImagesFromModel: true,
+        template: '[Image description: {{description}}]'
     }
 };
 
@@ -37,6 +55,32 @@ let compactParameterManager = null;
 let statusBarManager = null;
 let promptPickerManager = null;
 let inputHistoryManager = null;
+let imageReaderManager = null;
+
+/**
+ * Feature toggles shown in the settings drawer.
+ * `apply` receives the effective enabled state (feature flag AND master switch).
+ */
+const FEATURES = [
+    { key: 'tabs', label: () => t`Parameters / Prompts tabs`, apply: (on) => openAITabManager?.setEnabled(on) },
+    { key: 'contextLock', label: () => t`Locked context size`, apply: (on) => contextLockManager?.setVisible(on) },
+    { key: 'compactParameters', label: () => t`Compact parameter controls`, apply: (on) => compactParameterManager?.setEnabled(on) },
+    { key: 'statusBar', label: () => t`Status bar`, apply: (on) => statusBarManager?.setEnabled(on) },
+    { key: 'promptPicker', label: () => t`Prompt picker`, apply: (on) => promptPickerManager?.setEnabled(on) },
+    { key: 'inputHistory', label: () => t`Input history`, apply: (on) => inputHistoryManager?.setEnabled(on) },
+    { key: 'imageReader', label: () => t`Image reader`, apply: (on) => imageReaderManager?.setEnabled(on) },
+];
+
+function isFeatureEnabled(key) {
+    const settings = SillyTavern.getContext().extensionSettings[settingsKey];
+    return !!settings.enabled && settings.features?.[key] !== false;
+}
+
+function applyAllFeatures() {
+    for (const feature of FEATURES) {
+        feature.apply(isFeatureEnabled(feature.key));
+    }
+}
 
 /**
  * Main extension initialization function
@@ -78,11 +122,11 @@ let inputHistoryManager = null;
  * Initialize UI elements and events for the extension
  */
 function initExtensionUI() {
+    // Initialize managers first so the settings panel can render their controls
+    initializeOpenAITabs();
+
     // Render extension settings
     renderExtensionSettings();
-
-    // Initialize tab managers
-    initializeOpenAITabs();
 }
 
 /**
@@ -90,14 +134,10 @@ function initExtensionUI() {
  */
 function initializeOpenAITabs() {
     const context = SillyTavern.getContext();
-    const settings = context.extensionSettings[settingsKey];
 
     if (!openAITabManager) {
         openAITabManager = new OpenAITabManager();
     }
-
-    // Set enabled state based on settings
-    openAITabManager.setEnabled(settings.enabled);
 
     if (!contextLockManager) {
         contextLockManager = new ContextLockManager({
@@ -109,22 +149,27 @@ function initializeOpenAITabs() {
     if (!compactParameterManager) {
         compactParameterManager = new CompactParameterManager();
     }
-    compactParameterManager.setEnabled(settings.enabled);
 
     if (!statusBarManager) {
         statusBarManager = new StatusBarManager();
     }
-    statusBarManager.setEnabled(settings.enabled);
 
     if (!promptPickerManager) {
         promptPickerManager = new PromptPickerManager();
     }
-    promptPickerManager.setEnabled(settings.enabled);
 
     if (!inputHistoryManager) {
         inputHistoryManager = new InputHistoryManager();
     }
-    inputHistoryManager.setEnabled(settings.enabled);
+
+    if (!imageReaderManager) {
+        imageReaderManager = new ImageReaderManager({
+            getSettings: () => context.extensionSettings[settingsKey].imageReader,
+            saveSettings: () => context.saveSettingsDebounced(),
+        });
+    }
+
+    applyAllFeatures();
 }
 
 /**
@@ -171,6 +216,11 @@ function renderExtensionSettings() {
     // Get settings
     const settings = context.extensionSettings[settingsKey];
 
+    // Per-feature toggle container (populated below, referenced by the master switch)
+    const featureList = document.createElement('div');
+    featureList.classList.add('cct-feature-list');
+    featureList.classList.toggle('cct-features-disabled', !settings.enabled);
+
     // Create enable switch
     const enabledCheckboxLabel = document.createElement('label');
     enabledCheckboxLabel.classList.add('checkbox_label');
@@ -183,24 +233,8 @@ function renderExtensionSettings() {
 
     enabledCheckbox.addEventListener('change', () => {
         settings.enabled = enabledCheckbox.checked;
-
-        // Update tab manager based on enabled state
-        if (openAITabManager) {
-            openAITabManager.setEnabled(settings.enabled);
-        }
-        if (compactParameterManager) {
-            compactParameterManager.setEnabled(settings.enabled);
-        }
-        if (statusBarManager) {
-            statusBarManager.setEnabled(settings.enabled);
-        }
-        if (promptPickerManager) {
-            promptPickerManager.setEnabled(settings.enabled);
-        }
-        if (inputHistoryManager) {
-            inputHistoryManager.setEnabled(settings.enabled);
-        }
-
+        applyAllFeatures();
+        featureList.classList.toggle('cct-features-disabled', !settings.enabled);
         context.saveSettingsDebounced();
     });
 
@@ -209,6 +243,31 @@ function renderExtensionSettings() {
 
     enabledCheckboxLabel.append(enabledCheckbox, enabledCheckboxText);
     inlineDrawerContent.append(enabledCheckboxLabel);
+
+    // Per-feature toggles
+    for (const feature of FEATURES) {
+        const label = document.createElement('label');
+        label.classList.add('checkbox_label');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `${settingsKey}-feature-${feature.key}`;
+        checkbox.checked = settings.features[feature.key] !== false;
+        checkbox.addEventListener('change', () => {
+            settings.features[feature.key] = checkbox.checked;
+            feature.apply(isFeatureEnabled(feature.key));
+            context.saveSettingsDebounced();
+        });
+        const text = document.createElement('span');
+        text.textContent = feature.label();
+        label.append(checkbox, text);
+        featureList.append(label);
+    }
+    inlineDrawerContent.append(featureList);
+
+    // Image Reader controls
+    if (imageReaderManager) {
+        imageReaderManager.renderSettings(inlineDrawerContent);
+    }
 
     // Initialize drawer toggle functionality
     inlineDrawerToggle.addEventListener('click', function() {
@@ -239,5 +298,6 @@ window.ChatCompletionTabs = {
     get statusBarManager() { return statusBarManager; },
     get promptPickerManager() { return promptPickerManager; },
     get inputHistoryManager() { return inputHistoryManager; },
+    get imageReaderManager() { return imageReaderManager; },
     VERSION
 };
