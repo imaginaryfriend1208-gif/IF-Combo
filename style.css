@@ -547,3 +547,22 @@ body:has(.openai-tab-buttons) {
     opacity: 0.5;
     pointer-events: none;
 }
+
+/* -- Contact / support links -- */
+
+.cct-links-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid color-mix(in srgb, var(--SmartThemeBodyColor) 12%, transparent);
+}
+
+.cct-link-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: calc(var(--mainFontSize, 1rem) * 0.85);
+    text-decoration: none;
+    color: inherit;
+}

@@ -269,6 +269,37 @@ function renderExtensionSettings() {
         imageReaderManager.renderSettings(inlineDrawerContent);
     }
 
+    // Contact / support links
+    const linksRow = document.createElement('div');
+    linksRow.classList.add('cct-links-row');
+
+    const discordLink = document.createElement('a');
+    discordLink.classList.add('menu_button', 'cct-link-button');
+    discordLink.href = 'https://discord.com/users/1148686772281278585';
+    discordLink.target = '_blank';
+    discordLink.rel = 'noopener noreferrer';
+    discordLink.title = t`Contact me on Discord`;
+    const discordIcon = document.createElement('i');
+    discordIcon.classList.add('fa-brands', 'fa-discord');
+    const discordText = document.createElement('span');
+    discordText.textContent = t`Contact me`;
+    discordLink.append(discordIcon, discordText);
+
+    const kofiLink = document.createElement('a');
+    kofiLink.classList.add('menu_button', 'cct-link-button');
+    kofiLink.href = 'https://ko-fi.com/holimo';
+    kofiLink.target = '_blank';
+    kofiLink.rel = 'noopener noreferrer';
+    kofiLink.title = t`Support me on Ko-fi`;
+    const kofiIcon = document.createElement('i');
+    kofiIcon.classList.add('fa-solid', 'fa-mug-hot');
+    const kofiText = document.createElement('span');
+    kofiText.textContent = t`Support me`;
+    kofiLink.append(kofiIcon, kofiText);
+
+    linksRow.append(discordLink, kofiLink);
+    inlineDrawerContent.append(linksRow);
+
     // Initialize drawer toggle functionality
     inlineDrawerToggle.addEventListener('click', function() {
         this.classList.toggle('open');
