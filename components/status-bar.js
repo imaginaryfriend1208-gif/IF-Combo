@@ -16,6 +16,7 @@ export class StatusBarManager {
         this.apiDot = null;
         this.chatValue = null;
         this.personaValue = null;
+        this.homeButton = null;
         this.mountRetryId = null;
         this.eventBindings = [];
 
@@ -82,7 +83,31 @@ export class StatusBarManager {
         const persona = this.createItem('fa-user', t`Persona`);
         this.personaValue = persona.value;
 
-        this.root.append(api.item, chat.item, persona.item);
+        // Back button next to the persona: closes the current chat and
+        // returns to the home screen (welcome message + recent chats).
+        this.homeButton = document.createElement('div');
+        this.homeButton.classList.add('cct-status-bar-item', 'cct-status-bar-clickable', 'cct-status-bar-home');
+        this.homeButton.title = t`Back to home`;
+        this.homeButton.setAttribute('role', 'button');
+        this.homeButton.tabIndex = 0;
+        const homeIcon = document.createElement('i');
+        homeIcon.classList.add('fa-solid', 'fa-arrow-left');
+        this.homeButton.append(homeIcon);
+        this.homeButton.addEventListener('click', () => this.goHome());
+        this.homeButton.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                this.goHome();
+            }
+        });
+
+        // Persona and back button share the right-hand grid track so the
+        // three-column layout (and centered chat name) stays intact.
+        const side = document.createElement('div');
+        side.classList.add('cct-status-bar-side');
+        side.append(persona.item, this.homeButton);
+
+        this.root.append(api.item, chat.item, side);
 
         // Insert at the top of #sheld, right above the chat log, so the bar
         // sits directly below the top bar without overlapping anything.
@@ -179,6 +204,10 @@ export class StatusBarManager {
 
         // Persona
         this.personaValue.textContent = context.name1 || t`No persona`;
+
+        // Back button is only meaningful while a chat is open
+        this.homeButton.classList.toggle('cct-status-bar-disabled', !chatId);
+        this.homeButton.setAttribute('aria-disabled', String(!chatId));
     }
 
     getModelName(context) {
@@ -213,6 +242,16 @@ export class StatusBarManager {
         optionButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     }
 
+    goHome() {
+        if (this.homeButton?.classList.contains('cct-status-bar-disabled')) return;
+
+        // Same action as "Close chat" in the options menu: clears the
+        // current chat and shows the welcome screen with recent chats.
+        const optionButton = document.getElementById('option_close_chat');
+        if (!optionButton) return;
+        optionButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    }
+
     unmount() {
         this.root?.remove();
         this.root = null;
@@ -220,6 +259,7 @@ export class StatusBarManager {
         this.apiDot = null;
         this.chatValue = null;
         this.personaValue = null;
+        this.homeButton = null;
     }
 
     destroy() {

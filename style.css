@@ -37,12 +37,32 @@
     max-width: 100%;
 }
 
-.cct-status-bar-item:first-child {
+.cct-status-bar > .cct-status-bar-item:first-child {
     justify-self: start;
 }
 
-.cct-status-bar-item:last-child {
+/* Right-hand track: persona label + back-to-home button */
+.cct-status-bar-side {
+    display: flex;
+    align-items: center;
     justify-self: end;
+    min-width: 0;
+    gap: 2px;
+}
+
+.cct-status-bar-home {
+    flex: 0 0 auto;
+    padding: 2px 6px;
+}
+
+.cct-status-bar-home > i {
+    font-size: 0.95em;
+}
+
+.cct-status-bar-disabled {
+    opacity: 0.35;
+    cursor: default;
+    pointer-events: none;
 }
 
 .cct-status-bar-clickable {

@@ -7,7 +7,7 @@
     "js": "index.js",
     "css": "style.css",
     "author": "Rivelle <rivelle.days@gmail.com>",
-    "version": "1.6.0",
+    "version": "1.7.0",
     "license": "AGPL-3.0",
     "homepage": "https://github.com/imaginaryfriend1208-gif/IF-Combo",
     "auto_update": true,

@@ -5,7 +5,7 @@
 // Global settings and constants
 const EXTENSION_NAME = 'IF Combo';
 const settingsKey = 'ChatCompletionTabs';
-const VERSION = "1.6.0";
+const VERSION = "1.7.0";
 
 // Import required functions
 import { t } from '../../../i18n.js';
