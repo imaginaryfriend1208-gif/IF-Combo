@@ -762,6 +762,13 @@ body:has(.openai-tab-buttons) {
     color: var(--SmartThemeQuoteColor, #f5c518);
 }
 
+/* A saved translation exists but the original is currently shown */
+.mes_button.cct-translate.cct-cached {
+    opacity: 0.85;
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+}
+
 .mes_button.cct-translate.cct-busy {
     animation: cct-translate-spin 1s linear infinite;
     pointer-events: none;

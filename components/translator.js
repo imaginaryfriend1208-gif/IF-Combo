@@ -111,10 +111,16 @@ export class TranslatorManager {
             const button = this.ensureButton(buttons);
             const id = Number(mes.getAttribute('mesid'));
             const message = context.chat?.[id];
-            const shown = !!message?.extra?.display_text && message.extra.display_text === message.extra[TRANSLATION_KEY];
+            const cache = this.getCache(message);
+            const shown = this.isShowingTranslation(message);
             button.classList.toggle('cct-active', shown);
+            button.classList.toggle('cct-cached', !shown && !!cache);
             button.classList.toggle('cct-busy', this.inFlight.has(id));
-            button.title = shown ? t`Show original` : t`Translate message (select text to translate only the selection)`;
+            button.title = shown
+                ? t`Show original`
+                : cache
+                    ? t`Show saved translation (Shift+click to translate again)`
+                    : t`Translate message (select text to translate only the selection)`;
         });
     }
 
@@ -253,6 +259,26 @@ export class TranslatorManager {
     /* Translation actions                                                 */
     /* ------------------------------------------------------------------ */
 
+    /**
+     * Cached translation for a message, or null when there is none or the
+     * message text changed since it was translated (edit / swipe).
+     * @returns {{ source: string, text: string, language: string } | null}
+     */
+    getCache(message) {
+        const raw = message?.extra?.[TRANSLATION_KEY];
+        if (!raw) return null;
+        // Older entries stored the bare translated string
+        const entry = typeof raw === 'string' ? { source: null, text: raw, language: null } : raw;
+        if (!entry?.text) return null;
+        if (entry.source !== null && entry.source !== String(message.mes ?? '')) return null;
+        return entry;
+    }
+
+    isShowingTranslation(message) {
+        const cache = this.getCache(message);
+        return !!cache && !!message?.extra?.display_text && message.extra.display_text === cache.text;
+    }
+
     async toggleMessageTranslation(messageId, force = false) {
         const context = SillyTavern.getContext();
         const message = context.chat?.[messageId];
@@ -260,11 +286,10 @@ export class TranslatorManager {
         if (this.inFlight.has(messageId)) return;
         if (typeof message.extra !== 'object' || message.extra === null) message.extra = {};
 
-        const cached = message.extra[TRANSLATION_KEY];
-        const showing = !!message.extra.display_text && message.extra.display_text === cached;
+        const cache = this.getCache(message);
 
-        if (!force && showing) {
-            // Translation visible -> show original
+        if (!force && this.isShowingTranslation(message)) {
+            // Translation visible -> show original (translation stays saved)
             delete message.extra.display_text;
             context.updateMessageBlock?.(messageId, message);
             this.apply();
@@ -272,9 +297,9 @@ export class TranslatorManager {
             return;
         }
 
-        if (!force && cached) {
-            // Original visible, translation cached -> show translation again
-            message.extra.display_text = cached;
+        if (!force && cache) {
+            // Original visible, saved translation available -> show it, no API call
+            message.extra.display_text = cache.text;
             context.updateMessageBlock?.(messageId, message);
             this.apply();
             await context.saveChat();
@@ -289,7 +314,11 @@ export class TranslatorManager {
         try {
             const translation = await this.translate(source, message.name);
             if (!translation) return;
-            message.extra[TRANSLATION_KEY] = translation;
+            message.extra[TRANSLATION_KEY] = {
+                source,
+                text: translation,
+                language: String(this.getSettings()?.targetLanguage || ''),
+            };
             message.extra.display_text = translation;
             context.updateMessageBlock?.(messageId, message);
             await context.saveChat();

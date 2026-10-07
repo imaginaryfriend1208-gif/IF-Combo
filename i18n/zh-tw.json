@@ -55,6 +55,7 @@
     "Translator": "翻譯器",
     "Translate message (select text to translate only the selection)": "翻譯訊息（選取文字則只翻譯所選部分）",
     "Show original": "顯示原文",
+    "Show saved translation (Shift+click to translate again)": "顯示已儲存的譯文（Shift+點擊重新翻譯）",
     "Translate selection": "翻譯所選文字",
     "Translating...": "翻譯中...",
     "Translation failed": "翻譯失敗",
