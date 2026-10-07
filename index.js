@@ -66,6 +66,7 @@ let inputHistoryManager = null;
 let imageReaderManager = null;
 let disabledPromptFilterManager = null;
 let promptComboManager = null;
+let translatorManager = null;
 
 /**
  * Feature toggles shown in the settings drawer.
