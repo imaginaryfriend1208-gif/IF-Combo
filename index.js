@@ -5,7 +5,7 @@
 // Global settings and constants
 const EXTENSION_NAME = 'IF Combo';
 const settingsKey = 'ChatCompletionTabs';
-const VERSION = "1.8.0";
+const VERSION = "1.9.0";
 
 // Import required functions
 import { t } from '../../../i18n.js';
@@ -19,6 +19,7 @@ import { PromptPickerManager } from './components/prompt-picker.js';
 import { InputHistoryManager } from './components/input-history.js';
 import { ImageReaderManager, DEFAULT_IMAGE_READER_PROMPT } from './components/image-reader.js';
 import { DisabledPromptFilterManager } from './components/disabled-prompt-filter.js';
+import { PromptComboManager } from './components/prompt-combos.js';
 
 /**
  * Default settings configuration
@@ -34,8 +35,12 @@ const defaultSettings = {
         inputHistory: true,
         imageReader: false,
         hideDisabledPrompts: true,
+        promptCombos: true,
     },
     hideDisabledPrompts: false, // current state of the hide/show toggle in the prompt manager footer
+    promptCombos: {
+        presets: {} // { [presetName]: [{ id, name, enabled: [promptIdentifier] }] }
+    },
     contextLock: {
         enabled: false,
         size: 100000, // one of 100000/150000/180000/200000 or 'custom'
@@ -59,6 +64,7 @@ let promptPickerManager = null;
 let inputHistoryManager = null;
 let imageReaderManager = null;
 let disabledPromptFilterManager = null;
+let promptComboManager = null;
 
 /**
  * Feature toggles shown in the settings drawer.
@@ -73,6 +79,7 @@ const FEATURES = [
     { key: 'inputHistory', label: () => t`Input history`, apply: (on) => inputHistoryManager?.setEnabled(on) },
     { key: 'imageReader', label: () => t`Image reader`, apply: (on) => imageReaderManager?.setEnabled(on) },
     { key: 'hideDisabledPrompts', label: () => t`Hide disabled prompts button`, apply: (on) => disabledPromptFilterManager?.setEnabled(on) },
+    { key: 'promptCombos', label: () => t`Prompt combos`, apply: (on) => promptComboManager?.setEnabled(on) },
 ];
 
 function isFeatureEnabled(key) {
@@ -180,6 +187,13 @@ function initializeOpenAITabs() {
                 context.extensionSettings[settingsKey].hideDisabledPrompts = hidden;
                 context.saveSettingsDebounced();
             },
+        });
+    }
+
+    if (!promptComboManager) {
+        promptComboManager = new PromptComboManager({
+            getSettings: () => context.extensionSettings[settingsKey].promptCombos,
+            saveSettings: () => context.saveSettingsDebounced(),
         });
     }
 
@@ -357,5 +371,6 @@ window.ChatCompletionTabs = {
     get inputHistoryManager() { return inputHistoryManager; },
     get imageReaderManager() { return imageReaderManager; },
     get disabledPromptFilterManager() { return disabledPromptFilterManager; },
+    get promptComboManager() { return promptComboManager; },
     VERSION
 };

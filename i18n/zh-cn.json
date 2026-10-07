@@ -44,5 +44,12 @@
     "Support me on Ko-fi": "在 Ko-fi 上支持我",
     "Hide disabled prompts": "隐藏已禁用的提示词",
     "Show disabled prompts": "显示已禁用的提示词",
-    "Hide disabled prompts button": "隐藏已禁用提示词按钮"
+    "Hide disabled prompts button": "隐藏已禁用提示词按钮",
+    "Prompt combos": "提示词组合",
+    "No saved combos": "暂无已保存的组合",
+    "Save current as combo": "将当前状态保存为组合",
+    "Combo name": "组合名称",
+    "Update combo with current toggles": "用当前开关状态更新组合",
+    "Rename combo": "重命名组合",
+    "Delete combo": "删除组合"
 }
