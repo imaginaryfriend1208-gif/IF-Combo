@@ -769,6 +769,27 @@ body:has(.openai-tab-buttons) {
     text-underline-offset: 3px;
 }
 
+.mes_button.cct-translate {
+    position: relative;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+}
+
+/* Hold progress ring: fills over --cct-hold-ms, then the re-translation fires */
+.mes_button.cct-translate.cct-holding::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top-color: var(--SmartThemeQuoteColor, #f5c518);
+    border-right-color: var(--SmartThemeQuoteColor, #f5c518);
+    animation: cct-translate-spin var(--cct-hold-ms, 3000ms) linear infinite;
+    pointer-events: none;
+}
+
 .mes_button.cct-translate.cct-busy {
     animation: cct-translate-spin 1s linear infinite;
     pointer-events: none;

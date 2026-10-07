@@ -17,6 +17,7 @@ const BUTTON_CLASS = 'cct-translate';
 const BUBBLE_ID = 'cct-translate-bubble';
 const TRANSLATION_KEY = 'cct_translation';
 const DEFAULT_PROMPT_ID = 'default';
+const HOLD_DURATION_MS = 3000;
 
 export const DEFAULT_TRANSLATE_PROMPT = [
     'You are a professional literary translator. Translate the text into {{language}}.',
@@ -45,6 +46,9 @@ export class TranslatorManager {
 
         this.handleMouseDown = this.handleMouseDown.bind(this);
         this.handleClick = this.handleClick.bind(this);
+        this.handlePointerUp = this.handlePointerUp.bind(this);
+        this.handleContextMenu = this.handleContextMenu.bind(this);
+        this.hold = null; // { button, messageId, timer, fired }
         this.handleSelectionChange = this.handleSelectionChange.bind(this);
         this.hideBubble = this.hideBubble.bind(this);
 
@@ -59,6 +63,9 @@ export class TranslatorManager {
     init() {
         document.addEventListener('mousedown', this.handleMouseDown, true);
         document.addEventListener('click', this.handleClick, true);
+        document.addEventListener('pointerup', this.handlePointerUp, true);
+        document.addEventListener('pointercancel', this.handlePointerUp, true);
+        document.addEventListener('contextmenu', this.handleContextMenu, true);
         document.addEventListener('selectionchange', this.handleSelectionChange);
         window.addEventListener('scroll', this.hideBubble, true);
 
@@ -119,8 +126,9 @@ export class TranslatorManager {
             button.title = shown
                 ? t`Show original`
                 : cache
-                    ? t`Show saved translation (Shift+click to translate again)`
+                    ? t`Show saved translation (hold 3s to translate again)`
                     : t`Translate message (select text to translate only the selection)`;
+            if (shown) button.title = t`Show original (hold 3s to translate again)`;
         });
     }
 
@@ -155,11 +163,54 @@ export class TranslatorManager {
         if (!this.enabled) return;
         const target = event.target instanceof Element ? event.target : null;
         if (!target) return;
-        if (target.closest(`.${BUTTON_CLASS}`) || target.closest(`#${BUBBLE_ID}`)) {
+        const button = target.closest(`.${BUTTON_CLASS}`);
+        if (button || target.closest(`#${BUBBLE_ID}`)) {
             // Remember the selection before the click collapses it
             this.pendingSelection = this.getSelectedText();
             event.preventDefault();
         }
+        if (button && !this.pendingSelection) {
+            this.startHold(button);
+        }
+    }
+
+    /* Hold the message button for HOLD_DURATION_MS to force a fresh translation */
+    startHold(button) {
+        this.cancelHold();
+        const mes = button.closest('.mes');
+        const messageId = Number(mes?.getAttribute('mesid'));
+        if (!Number.isInteger(messageId)) return;
+        if (!this.getCache(SillyTavern.getContext().chat?.[messageId])) return; // nothing to re-translate
+        button.classList.add('cct-holding');
+        button.style.setProperty('--cct-hold-ms', `${HOLD_DURATION_MS}ms`);
+        this.hold = {
+            button,
+            messageId,
+            fired: false,
+            timer: setTimeout(() => {
+                if (!this.hold) return;
+                this.hold.fired = true;
+                button.classList.remove('cct-holding');
+                this.toggleMessageTranslation(messageId, true);
+            }, HOLD_DURATION_MS),
+        };
+    }
+
+    cancelHold() {
+        if (!this.hold) return;
+        clearTimeout(this.hold.timer);
+        this.hold.button.classList.remove('cct-holding');
+        if (!this.hold.fired) this.hold = null;
+    }
+
+    handlePointerUp() {
+        this.cancelHold();
+    }
+
+    handleContextMenu(event) {
+        // Long-press on touch devices must not open the context menu
+        const target = event.target instanceof Element ? event.target : null;
+        if (target?.closest(`.${BUTTON_CLASS}`)) event.preventDefault();
     }
 
     handleClick(event) {
@@ -171,6 +222,13 @@ export class TranslatorManager {
         if (button) {
             event.preventDefault();
             event.stopPropagation();
+            if (this.hold?.fired) {
+                // The hold already triggered a re-translation; ignore the release click
+                this.hold = null;
+                this.pendingSelection = '';
+                return;
+            }
+            this.hold = null;
             const mes = button.closest('.mes');
             const id = Number(mes?.getAttribute('mesid'));
             const selection = this.pendingSelection;
@@ -698,6 +756,10 @@ export class TranslatorManager {
         clearTimeout(this.selectionTimer);
         document.removeEventListener('mousedown', this.handleMouseDown, true);
         document.removeEventListener('click', this.handleClick, true);
+        document.removeEventListener('pointerup', this.handlePointerUp, true);
+        document.removeEventListener('pointercancel', this.handlePointerUp, true);
+        document.removeEventListener('contextmenu', this.handleContextMenu, true);
+        this.cancelHold();
         document.removeEventListener('selectionchange', this.handleSelectionChange);
         window.removeEventListener('scroll', this.hideBubble, true);
         this.bubble?.remove();

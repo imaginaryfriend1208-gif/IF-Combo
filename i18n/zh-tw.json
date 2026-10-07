@@ -55,7 +55,6 @@
     "Translator": "翻譯器",
     "Translate message (select text to translate only the selection)": "翻譯訊息（選取文字則只翻譯所選部分）",
     "Show original": "顯示原文",
-    "Show saved translation (Shift+click to translate again)": "顯示已儲存的譯文（Shift+點擊重新翻譯）",
     "Translate selection": "翻譯所選文字",
     "Translating...": "翻譯中...",
     "Translation failed": "翻譯失敗",
@@ -74,5 +73,7 @@
     "Reset prompt text to default": "重設提示詞為預設",
     "At least one prompt must remain.": "至少需保留一個提示詞。",
     "Default": "預設",
-    "Placeholders: {{language}} = target language, {{name}} = speaker, {{text}} = text to translate (if omitted, the text is sent as a separate user message).": "佔位符：{{language}} = 目標語言，{{name}} = 說話者，{{text}} = 待翻譯文字（省略時文字會作為獨立的使用者訊息送出）。"
+    "Placeholders: {{language}} = target language, {{name}} = speaker, {{text}} = text to translate (if omitted, the text is sent as a separate user message).": "佔位符：{{language}} = 目標語言，{{name}} = 說話者，{{text}} = 待翻譯文字（省略時文字會作為獨立的使用者訊息送出）。",
+    "Show saved translation (hold 3s to translate again)": "顯示已儲存的譯文（長按3秒重新翻譯）",
+    "Show original (hold 3s to translate again)": "顯示原文（長按3秒重新翻譯）"
 }
