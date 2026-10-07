@@ -5,7 +5,7 @@
 // Global settings and constants
 const EXTENSION_NAME = 'IF Combo';
 const settingsKey = 'ChatCompletionTabs';
-const VERSION = "1.7.0";
+const VERSION = "1.8.0";
 
 // Import required functions
 import { t } from '../../../i18n.js';
@@ -18,6 +18,7 @@ import { StatusBarManager } from './components/status-bar.js';
 import { PromptPickerManager } from './components/prompt-picker.js';
 import { InputHistoryManager } from './components/input-history.js';
 import { ImageReaderManager, DEFAULT_IMAGE_READER_PROMPT } from './components/image-reader.js';
+import { DisabledPromptFilterManager } from './components/disabled-prompt-filter.js';
 
 /**
  * Default settings configuration
@@ -32,7 +33,9 @@ const defaultSettings = {
         promptPicker: true,
         inputHistory: true,
         imageReader: false,
+        hideDisabledPrompts: true,
     },
+    hideDisabledPrompts: false, // current state of the hide/show toggle in the prompt manager footer
     contextLock: {
         enabled: false,
         size: 100000, // one of 100000/150000/180000/200000 or 'custom'
@@ -55,6 +58,7 @@ let statusBarManager = null;
 let promptPickerManager = null;
 let inputHistoryManager = null;
 let imageReaderManager = null;
+let disabledPromptFilterManager = null;
 
 /**
  * Feature toggles shown in the settings drawer.
@@ -68,6 +72,7 @@ const FEATURES = [
     { key: 'promptPicker', label: () => t`Prompt picker`, apply: (on) => promptPickerManager?.setEnabled(on) },
     { key: 'inputHistory', label: () => t`Input history`, apply: (on) => inputHistoryManager?.setEnabled(on) },
     { key: 'imageReader', label: () => t`Image reader`, apply: (on) => imageReaderManager?.setEnabled(on) },
+    { key: 'hideDisabledPrompts', label: () => t`Hide disabled prompts button`, apply: (on) => disabledPromptFilterManager?.setEnabled(on) },
 ];
 
 function isFeatureEnabled(key) {
@@ -165,6 +170,16 @@ function initializeOpenAITabs() {
         imageReaderManager = new ImageReaderManager({
             getSettings: () => context.extensionSettings[settingsKey].imageReader,
             saveSettings: () => context.saveSettingsDebounced(),
+        });
+    }
+
+    if (!disabledPromptFilterManager) {
+        disabledPromptFilterManager = new DisabledPromptFilterManager({
+            getHidden: () => !!context.extensionSettings[settingsKey].hideDisabledPrompts,
+            setHidden: (hidden) => {
+                context.extensionSettings[settingsKey].hideDisabledPrompts = hidden;
+                context.saveSettingsDebounced();
+            },
         });
     }
 
@@ -341,5 +356,6 @@ window.ChatCompletionTabs = {
     get promptPickerManager() { return promptPickerManager; },
     get inputHistoryManager() { return inputHistoryManager; },
     get imageReaderManager() { return imageReaderManager; },
+    get disabledPromptFilterManager() { return disabledPromptFilterManager; },
     VERSION
 };

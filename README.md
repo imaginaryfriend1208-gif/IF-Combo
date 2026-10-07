@@ -8,6 +8,7 @@ IF Combo bundles practical SillyTavern interface tools in one extension:
 - The status bar below the top bar shows the active model, chat, and persona at a glance. Click the chat name to open the chat manager, or the back arrow next to the persona to close the chat and return to the home screen.
 - The prompt picker replaces the prompt dropdown in the preset editor footer with inline insert/delete buttons on each row; already-inserted prompts show a check mark instead of the insert button.
 - The input history button next to Send reopens previously sent inputs (stored locally, most recent first).
+- The eye button in the preset editor footer hides prompts that are toggled off; order and enabled state are left untouched.
 
 - Image Reader describes every uploaded image with a vision model from a saved Connection Manager profile and appends the description to the message, optionally sending only the description (no raw image) to the main model.
 

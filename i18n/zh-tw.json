@@ -41,5 +41,8 @@
     "Contact me": "聯絡我",
     "Contact me on Discord": "透過 Discord 聯絡我",
     "Support me": "支持我",
-    "Support me on Ko-fi": "在 Ko-fi 上支持我"
+    "Support me on Ko-fi": "在 Ko-fi 上支持我",
+    "Hide disabled prompts": "隱藏已停用的提示詞",
+    "Show disabled prompts": "顯示已停用的提示詞",
+    "Hide disabled prompts button": "隱藏已停用提示詞按鈕"
 }

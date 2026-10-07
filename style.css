@@ -610,3 +610,17 @@ body:has(.openai-tab-buttons) {
 .cct-feature-panel[hidden] {
     display: none;
 }
+
+/* -- Disabled Prompt Filter -- */
+
+#completion_prompt_manager.cct-hide-disabled li.completion_prompt_manager_prompt_disabled {
+    display: none !important;
+}
+
+#cct-hide-disabled-prompts {
+    cursor: pointer;
+}
+
+#cct-hide-disabled-prompts.cct-active {
+    background: color-mix(in srgb, var(--SmartThemeBodyColor) 18%, transparent);
+}
