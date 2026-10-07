@@ -20,6 +20,7 @@ import { InputHistoryManager } from './components/input-history.js';
 import { ImageReaderManager, DEFAULT_IMAGE_READER_PROMPT } from './components/image-reader.js';
 import { DisabledPromptFilterManager } from './components/disabled-prompt-filter.js';
 import { PromptComboManager } from './components/prompt-combos.js';
+import { TranslatorManager, DEFAULT_TRANSLATE_PROMPT } from './components/translator.js';
 
 /**
  * Default settings configuration
@@ -193,6 +194,13 @@ function initializeOpenAITabs() {
     if (!promptComboManager) {
         promptComboManager = new PromptComboManager({
             getSettings: () => context.extensionSettings[settingsKey].promptCombos,
+            saveSettings: () => context.saveSettingsDebounced(),
+        });
+    }
+
+    if (!translatorManager) {
+        translatorManager = new TranslatorManager({
+            getSettings: () => context.extensionSettings[settingsKey].translator,
             saveSettings: () => context.saveSettingsDebounced(),
         });
     }
@@ -372,5 +380,6 @@ window.ChatCompletionTabs = {
     get imageReaderManager() { return imageReaderManager; },
     get disabledPromptFilterManager() { return disabledPromptFilterManager; },
     get promptComboManager() { return promptComboManager; },
+    get translatorManager() { return translatorManager; },
     VERSION
 };
