@@ -422,7 +422,9 @@ export class TranslatorManager {
     getActivePrompt() {
         this.ensurePromptList();
         const settings = this.getSettings();
-        return settings.prompts.find(p => p.id === settings.activePromptId) ?? settings.prompts[0];
+        return settings?.prompts?.find(p => p.id === settings.activePromptId)
+            ?? settings?.prompts?.[0]
+            ?? { id: DEFAULT_PROMPT_ID, name: 'Default', text: DEFAULT_TRANSLATE_PROMPT };
     }
 
     /* ------------------------------------------------------------------ */

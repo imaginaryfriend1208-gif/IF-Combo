@@ -5,7 +5,7 @@
 // Global settings and constants
 const EXTENSION_NAME = 'IF Combo';
 const settingsKey = 'ChatCompletionTabs';
-const VERSION = "1.9.0";
+const VERSION = "1.10.1";
 
 // Import required functions
 import { t } from '../../../i18n.js';
@@ -37,6 +37,7 @@ const defaultSettings = {
         imageReader: false,
         hideDisabledPrompts: true,
         promptCombos: true,
+        translator: true,
     },
     hideDisabledPrompts: false, // current state of the hide/show toggle in the prompt manager footer
     promptCombos: {
@@ -53,6 +54,14 @@ const defaultSettings = {
         maxTokens: 2048,
         hideImagesFromModel: true,
         template: '[Image description: {{description}}]'
+    },
+    translator: {
+        profileId: null,
+        targetLanguage: 'Vietnamese',
+        maxTokens: 4096,
+        selectionBubble: true,
+        prompts: [{ id: 'default', name: 'Default', text: DEFAULT_TRANSLATE_PROMPT }],
+        activePromptId: 'default'
     }
 };
 
@@ -79,9 +88,10 @@ const FEATURES = [
     { key: 'statusBar', label: () => t`Status bar`, apply: (on) => statusBarManager?.setEnabled(on) },
     { key: 'promptPicker', label: () => t`Prompt picker`, apply: (on) => promptPickerManager?.setEnabled(on) },
     { key: 'inputHistory', label: () => t`Input history`, apply: (on) => inputHistoryManager?.setEnabled(on) },
-    { key: 'imageReader', label: () => t`Image reader`, apply: (on) => imageReaderManager?.setEnabled(on) },
+    { key: 'imageReader', label: () => t`Image reader`, apply: (on) => imageReaderManager?.setEnabled(on), panel: () => imageReaderManager },
     { key: 'hideDisabledPrompts', label: () => t`Hide disabled prompts button`, apply: (on) => disabledPromptFilterManager?.setEnabled(on) },
     { key: 'promptCombos', label: () => t`Prompt combos`, apply: (on) => promptComboManager?.setEnabled(on) },
+    { key: 'translator', label: () => t`Translator`, apply: (on) => translatorManager?.setEnabled(on), panel: () => translatorManager },
 ];
 
 function isFeatureEnabled(key) {
@@ -299,13 +309,14 @@ function renderExtensionSettings() {
         label.append(checkbox, text);
         featureList.append(label);
 
-        // Image Reader settings panel, shown only while the feature is ticked
+        // Feature settings panel, shown only while the feature is ticked
         let subPanel = null;
-        if (feature.key === 'imageReader' && imageReaderManager) {
+        const panelManager = feature.panel?.();
+        if (panelManager?.renderSettings) {
             subPanel = document.createElement('div');
             subPanel.classList.add('cct-feature-panel');
             subPanel.hidden = !checkbox.checked;
-            imageReaderManager.renderSettings(subPanel);
+            panelManager.renderSettings(subPanel);
             featureList.append(subPanel);
         }
 
