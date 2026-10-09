@@ -5,7 +5,7 @@
 // Global settings and constants
 const EXTENSION_NAME = 'IF Combo';
 const settingsKey = 'ChatCompletionTabs';
-const VERSION = "1.11.0";
+const VERSION = "1.12.0";
 
 // Import required functions
 import { t } from '../../../i18n.js';
@@ -41,7 +41,10 @@ const defaultSettings = {
     },
     hideDisabledPrompts: false, // current state of the hide/show toggle in the prompt manager footer
     promptCombos: {
-        presets: {} // { [presetName]: [{ id, name, enabled: [promptIdentifier] }] }
+        // Legacy store { [presetName]: [{ id, name, enabled: [promptIdentifier] }] }.
+        // Combos now live in each preset file (extensions.ifCombo.promptCombos);
+        // entries here are moved into the preset the first time it is opened.
+        presets: {}
     },
     contextLock: {
         enabled: false,
