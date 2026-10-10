@@ -312,6 +312,22 @@
     opacity: 0.6;
 }
 
+/* -- Preset Picker (reuses the prompt picker dropdown styles) -- */
+
+.cct-preset-picker-item {
+    cursor: pointer;
+}
+
+.cct-preset-picker-item:focus-visible {
+    background: color-mix(in srgb, var(--SmartThemeBodyColor) 10%, transparent);
+    outline: none;
+}
+
+.cct-preset-picker-item.cct-active {
+    background: color-mix(in srgb, var(--SmartThemeBodyColor) 14%, transparent);
+    font-weight: 600;
+}
+
 /* -- Generic Tab System -- */
 
 /* Base Tab Content */
@@ -739,6 +755,40 @@ body:has(.openai-tab-buttons) {
 
 .cct-prompt-combos-save {
     opacity: 0.85;
+}
+
+/* Token summary of the preset's own enabled prompts (top of the menu) */
+.cct-prompt-combos-summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    font-size: calc(var(--mainFontSize, 1rem) * 0.85);
+    cursor: default;
+}
+
+.cct-prompt-combos-summary > i {
+    flex: 0 0 auto;
+    opacity: 0.7;
+}
+
+.cct-prompt-combos-summary-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.cct-prompt-combos-summary-main {
+    font-weight: 600;
+}
+
+.cct-prompt-combos-summary-detail {
+    font-size: 0.85em;
+    opacity: 0.65;
+}
+
+.cct-prompt-combos-summary-detail:empty {
+    display: none;
 }
 
 .cct-prompt-combos-empty {

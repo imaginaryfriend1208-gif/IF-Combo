@@ -75,5 +75,19 @@
     "Default": "默认",
     "Placeholders: {{language}} = target language, {{name}} = speaker, {{text}} = text to translate (if omitted, the text is sent as a separate user message).": "占位符：{{language}} = 目标语言，{{name}} = 说话者，{{text}} = 待翻译文字（省略时文字作为单独的用户消息发送）。",
     "Show saved translation (hold 3s to translate again)": "显示已保存的译文（长按3秒重新翻译）",
-    "Show original (hold 3s to translate again)": "显示原文（长按3秒重新翻译）"
+    "Show original (hold 3s to translate again)": "显示原文（长按3秒重新翻译）",
+    "Tokens of the preset's own enabled prompts. Placeholders (character card, chat history, world info, persona...) and {{macros}} are not counted.": "预设中自定义且已启用提示词的令牌数。不计入占位符（角色卡、聊天记录、世界信息、用户角色等）与 {{宏}}。",
+    "Counting tokens...": "正在计算令牌...",
+    "Token count unavailable": "无法计算令牌数",
+    "Preset prompts": "预设提示词",
+    "Prompts on": "已启用提示词",
+    "of context": "的上下文",
+    "Preset picker with delete buttons": "预设选择器（含删除按钮）",
+    "Select a preset": "选择预设",
+    "No presets": "无预设",
+    "Current preset": "当前预设",
+    "Delete preset": "删除预设",
+    "This action is irreversible.": "此操作无法撤销。",
+    "Preset deleted": "预设已删除",
+    "Preset was not deleted from server": "预设未从服务器删除"
 }

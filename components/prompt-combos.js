@@ -24,6 +24,8 @@ const FOOTER_SELECTOR = '.completion_prompt_manager_footer';
 const BUTTON_ID = 'cct-prompt-combos';
 const MENU_CLASS = 'cct-prompt-combos-menu';
 const PRESET_FIELD_PATH = 'ifCombo.promptCombos';
+// Innermost {{macro}}; stripped repeatedly so nested macros go too
+const MACRO_PATTERN = /\{\{[^{}]*\}\}/g;
 
 export class PromptComboManager {
     /**
@@ -215,6 +217,110 @@ export class PromptComboManager {
         return order.filter(entry => entry.enabled).map(entry => entry.identifier);
     }
 
+    /* ------------------------------------------------------------------ */
+    /* Token counting                                                      */
+    /* ------------------------------------------------------------------ */
+
+    stripMacros(text) {
+        let out = String(text ?? '');
+        let prev;
+        do {
+            prev = out;
+            out = out.replace(MACRO_PATTERN, '');
+        } while (out !== prev);
+        return out.trim();
+    }
+
+    /**
+     * Texts of the preset's own prompts among the given identifiers.
+     * Marker prompts (character card, chat history, world info, persona,
+     * examples...) and {{macros}} are left out, so only what the preset
+     * itself writes is counted.
+     */
+    getOwnPromptTexts(identifiers) {
+        const texts = [];
+        for (const identifier of identifiers) {
+            const prompt = promptManager?.getPromptById?.(identifier);
+            if (!prompt || prompt.marker) continue;
+            const text = this.stripMacros(prompt.content);
+            if (text) texts.push(text);
+        }
+        return texts;
+    }
+
+    /** @returns {Promise<{tokens: number, prompts: number} | null>} */
+    async countOwnTokens(identifiers) {
+        const getTokenCountAsync = SillyTavern.getContext().getTokenCountAsync;
+        if (typeof getTokenCountAsync !== 'function') return null;
+
+        const texts = this.getOwnPromptTexts(identifiers);
+        // ST caches counts per model and text, so repeated calls are cheap
+        const counts = await Promise.all(texts.map(text => getTokenCountAsync(text).catch(() => 0)));
+        return { tokens: counts.reduce((sum, n) => sum + (Number(n) || 0), 0), prompts: texts.length };
+    }
+
+    formatTokens(tokens) {
+        return tokens >= 1000 ? `${(tokens / 1000).toFixed(1)}k` : String(tokens);
+    }
+
+    buildSummaryRow() {
+        const row = document.createElement('div');
+        row.classList.add('cct-prompt-combos-summary');
+        row.title = t`Tokens of the preset's own enabled prompts. Placeholders (character card, chat history, world info, persona...) and {{macros}} are not counted.`;
+
+        const icon = document.createElement('i');
+        icon.classList.add('fa-solid', 'fa-fw', 'fa-calculator');
+
+        const text = document.createElement('div');
+        text.classList.add('cct-prompt-combos-summary-text');
+
+        const main = document.createElement('span');
+        main.classList.add('cct-prompt-combos-summary-main');
+        main.textContent = t`Counting tokens...`;
+
+        const detail = document.createElement('span');
+        detail.classList.add('cct-prompt-combos-summary-detail');
+
+        text.append(main, detail);
+        row.append(icon, text);
+        return { row, main, detail };
+    }
+
+    /** Fills the summary row and per-combo badges once counts resolve. */
+    async fillTokenCounts(menu, summary, badges) {
+        const isCurrent = () => this.menu === menu && menu.isConnected;
+
+        try {
+            const enabled = this.captureEnabled() ?? [];
+            const current = await this.countOwnTokens(enabled);
+            if (!isCurrent()) return;
+
+            if (!current) {
+                summary.main.textContent = t`Token count unavailable`;
+            } else {
+                summary.main.textContent = `${t`Preset prompts`}: ${current.tokens.toLocaleString()} ${t`tokens`}`;
+                const parts = [`${t`Prompts on`}: ${current.prompts}`];
+                const maxContext = Number(oai_settings?.openai_max_context) || 0;
+                if (maxContext > 0) {
+                    const percent = (current.tokens / maxContext) * 100;
+                    parts.push(`${percent < 10 ? percent.toFixed(1) : Math.round(percent)}% ${t`of context`}`);
+                }
+                summary.detail.textContent = parts.join(' · ');
+            }
+
+            for (const { combo, badge } of badges) {
+                const result = await this.countOwnTokens(combo.enabled);
+                if (!isCurrent()) return;
+                if (!result) continue;
+                badge.textContent = this.formatTokens(result.tokens);
+                badge.title = `${t`Prompts`}: ${result.prompts} · ${result.tokens.toLocaleString()} ${t`tokens`}`;
+            }
+        } catch (error) {
+            console.error('[IF Combo] Could not count prompt tokens', error);
+            if (isCurrent()) summary.main.textContent = t`Token count unavailable`;
+        }
+    }
+
     isComboActive(combo) {
         const current = this.captureEnabled();
         if (!current) return false;
@@ -310,6 +416,13 @@ export class PromptComboManager {
 
         const combos = this.getCombos();
 
+        const summary = this.buildSummaryRow();
+        menu.append(summary.row);
+
+        const summaryDivider = document.createElement('div');
+        summaryDivider.classList.add('cct-prompt-combos-divider');
+        menu.append(summaryDivider);
+
         if (!combos.length) {
             const empty = document.createElement('div');
             empty.classList.add('cct-prompt-combos-empty');
@@ -317,8 +430,11 @@ export class PromptComboManager {
             menu.append(empty);
         }
 
+        const badges = [];
         for (const combo of combos) {
-            menu.append(this.buildComboRow(combo));
+            const { row, badge } = this.buildComboRow(combo);
+            badges.push({ combo, badge });
+            menu.append(row);
         }
 
         const divider = document.createElement('div');
@@ -356,6 +472,8 @@ export class PromptComboManager {
         }
         menu.style.left = `${left}px`;
         menu.style.top = `${top}px`;
+
+        this.fillTokenCounts(menu, summary, badges);
     }
 
     buildComboRow(combo) {
@@ -372,9 +490,10 @@ export class PromptComboManager {
         name.textContent = combo.name;
         name.title = `${combo.name} (${combo.enabled.length})`;
 
+        // Filled with the combo's token count once it resolves
         const count = document.createElement('span');
         count.classList.add('cct-prompt-combos-count');
-        count.textContent = String(combo.enabled.length);
+        count.textContent = '…';
 
         const actions = document.createElement('span');
         actions.classList.add('cct-prompt-combos-actions');
@@ -415,7 +534,7 @@ export class PromptComboManager {
             this.applyCombo(combo);
         });
 
-        return row;
+        return { row, badge: count };
     }
 
     closeMenu() {
