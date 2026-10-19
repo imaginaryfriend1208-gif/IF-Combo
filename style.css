@@ -328,6 +328,59 @@
     font-weight: 600;
 }
 
+/* -- Character Delete -- */
+
+.cct-char-delete-books {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+.cct-char-delete-books-note {
+    margin-top: -4px;
+    font-weight: normal;
+    opacity: 0.7;
+}
+
+#rm_print_characters_block .character_select[data-chid] {
+    position: relative;
+}
+
+.cct-char-quick-delete {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    padding: 4px;
+    font-size: 0.85em;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
+}
+
+.character_select:hover .cct-char-quick-delete,
+.cct-char-quick-delete:focus-visible {
+    opacity: 0.6;
+}
+
+.cct-char-quick-delete:hover {
+    opacity: 1;
+    color: var(--fullred, #d33);
+}
+
+/* Touch screens have no hover, keep the button visible */
+@media (hover: none) {
+    .cct-char-quick-delete {
+        opacity: 0.5;
+    }
+}
+
+/* Bulk edit mode has its own selection controls */
+#rm_print_characters_block.group_overlay_mode_select .cct-char-quick-delete {
+    display: none;
+}
+
 /* -- Generic Tab System -- */
 
 /* Base Tab Content */

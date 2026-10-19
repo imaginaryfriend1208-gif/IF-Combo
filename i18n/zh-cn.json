@@ -89,5 +89,13 @@
     "Delete preset": "删除预设",
     "This action is irreversible.": "此操作无法撤销。",
     "Preset deleted": "预设已删除",
-    "Preset was not deleted from server": "预设未从服务器删除"
+    "Preset was not deleted from server": "预设未从服务器删除",
+    "Quick character delete (with lorebooks)": "快速删除角色（含世界书）",
+    "Also delete lorebook": "同时删除世界书",
+    "Also used by": "也被以下使用",
+    "Global lorebooks": "全局世界书",
+    "Lorebook deleted": "世界书已删除",
+    "Lorebook was not deleted": "世界书未删除",
+    "Delete character": "删除角色",
+    "Delete the character?": "您确定要删除角色吗？"
 }

@@ -5,7 +5,7 @@
 // Global settings and constants
 const EXTENSION_NAME = 'IF Combo';
 const settingsKey = 'ChatCompletionTabs';
-const VERSION = "1.14.0";
+const VERSION = "1.15.0";
 
 // Import required functions
 import { t } from '../../../i18n.js';
@@ -17,6 +17,7 @@ import { CompactParameterManager } from './components/compact-parameters.js';
 import { StatusBarManager } from './components/status-bar.js';
 import { PromptPickerManager } from './components/prompt-picker.js';
 import { PresetPickerManager } from './components/preset-picker.js';
+import { CharacterDeleteManager } from './components/character-delete.js';
 import { InputHistoryManager } from './components/input-history.js';
 import { ImageReaderManager, DEFAULT_IMAGE_READER_PROMPT } from './components/image-reader.js';
 import { DisabledPromptFilterManager } from './components/disabled-prompt-filter.js';
@@ -35,6 +36,7 @@ const defaultSettings = {
         statusBar: true,
         promptPicker: true,
         presetPicker: true,
+        characterDelete: true,
         inputHistory: true,
         imageReader: false,
         hideDisabledPrompts: true,
@@ -77,6 +79,7 @@ let compactParameterManager = null;
 let statusBarManager = null;
 let promptPickerManager = null;
 let presetPickerManager = null;
+let characterDeleteManager = null;
 let inputHistoryManager = null;
 let imageReaderManager = null;
 let disabledPromptFilterManager = null;
@@ -94,6 +97,7 @@ const FEATURES = [
     { key: 'statusBar', label: () => t`Status bar`, apply: (on) => statusBarManager?.setEnabled(on) },
     { key: 'promptPicker', label: () => t`Prompt picker`, apply: (on) => promptPickerManager?.setEnabled(on) },
     { key: 'presetPicker', label: () => t`Preset picker with delete buttons`, apply: (on) => presetPickerManager?.setEnabled(on) },
+    { key: 'characterDelete', label: () => t`Quick character delete (with lorebooks)`, apply: (on) => characterDeleteManager?.setEnabled(on) },
     { key: 'inputHistory', label: () => t`Input history`, apply: (on) => inputHistoryManager?.setEnabled(on) },
     { key: 'imageReader', label: () => t`Image reader`, apply: (on) => imageReaderManager?.setEnabled(on), panel: () => imageReaderManager },
     { key: 'hideDisabledPrompts', label: () => t`Hide disabled prompts button`, apply: (on) => disabledPromptFilterManager?.setEnabled(on) },
@@ -190,6 +194,10 @@ function initializeOpenAITabs() {
 
     if (!presetPickerManager) {
         presetPickerManager = new PresetPickerManager();
+    }
+
+    if (!characterDeleteManager) {
+        characterDeleteManager = new CharacterDeleteManager();
     }
 
     if (!inputHistoryManager) {
@@ -400,6 +408,7 @@ window.ChatCompletionTabs = {
     get statusBarManager() { return statusBarManager; },
     get promptPickerManager() { return promptPickerManager; },
     get presetPickerManager() { return presetPickerManager; },
+    get characterDeleteManager() { return characterDeleteManager; },
     get inputHistoryManager() { return inputHistoryManager; },
     get imageReaderManager() { return imageReaderManager; },
     get disabledPromptFilterManager() { return disabledPromptFilterManager; },
