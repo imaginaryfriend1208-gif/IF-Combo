@@ -97,5 +97,11 @@
     "Lorebook deleted": "世界書已刪除",
     "Lorebook was not deleted": "世界書未刪除",
     "Delete character": "刪除角色",
-    "Delete the character?": "您確定要刪除角色嗎？"
+    "Delete the character?": "您確定要刪除角色嗎？",
+    "Translate again": "重新翻譯",
+    "Replace original": "取代原文",
+    "The message no longer exists": "該訊息已不存在",
+    "Could not find the selected text in the original message. It may be showing a translation or contain formatting.": "無法在原始訊息中找到選取的文字。訊息可能正在顯示譯文或包含格式標記。",
+    "Original text replaced": "原文已取代",
+    "Could not replace the original text": "無法取代原文"
 }

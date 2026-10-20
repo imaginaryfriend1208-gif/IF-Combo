@@ -958,6 +958,27 @@ body:has(.openai-tab-buttons) {
     margin-bottom: 6px;
 }
 
+.cct-translate-result-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.cct-translate-result-actions > button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    width: auto;
+}
+
+.cct-translate-result-actions > button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
 .cct-translator-block label {
     display: block;
     margin-top: 6px;

@@ -19,6 +19,36 @@ const TRANSLATION_KEY = 'cct_translation';
 const DEFAULT_PROMPT_ID = 'default';
 const HOLD_DURATION_MS = 3000;
 
+/** Match rendered text while tolerating whitespace and markdown markers. */
+export function findLooseMatch(text, needle) {
+    if (!needle) return null;
+    const markdown = '[*_~`]*';
+    const pattern = needle.match(/\s+|[^\s]/gu)
+        .map(part => /^\s+$/.test(part) ? '\\s+' : part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+        .join(markdown);
+    const match = new RegExp(pattern, 'u').exec(text);
+    if (!match) return null;
+
+    // A marker run inside the match whose partner sits right outside it
+    // ("**bold** text" matched as "bold** text") would leave half of a
+    // markdown pair behind, so grow the match over that partner.
+    let start = match.index;
+    let end = start + match[0].length;
+    const key = (run) => [...run].sort().join('');
+    const counts = new Map();
+    for (const run of match[0].match(/[*_~`]+/g) ?? []) {
+        counts.set(key(run), (counts.get(key(run)) ?? 0) + 1);
+    }
+    for (const [runKey, count] of counts) {
+        if (count % 2 === 0) continue;
+        const before = text.slice(0, start).match(/[*_~`]+$/)?.[0];
+        const after = text.slice(end).match(/^[*_~`]+/)?.[0];
+        if (before && key(before) === runKey) start -= before.length;
+        else if (after && key(after) === runKey) end += after.length;
+    }
+    return { index: start, length: end - start };
+}
+
 export const DEFAULT_TRANSLATE_PROMPT = [
     'You are a professional literary translator. Translate the text into {{language}}.',
     'Preserve the original meaning, tone, register and point of view. Keep character names, markdown, line breaks, quotation marks, asterisks, emphasis and any HTML tags exactly as they are.',
@@ -41,6 +71,7 @@ export class TranslatorManager {
         this.intervalId = null;
         this.inFlight = new Set();
         this.pendingSelection = '';
+        this.pendingSelectionMesId = null;
         this.bubble = null;
         this.selectionTimer = null;
 
@@ -167,6 +198,7 @@ export class TranslatorManager {
         if (button || target.closest(`#${BUBBLE_ID}`)) {
             // Remember the selection before the click collapses it
             this.pendingSelection = this.getSelectedText();
+            this.pendingSelectionMesId = this.getSelectionMessageId();
             event.preventDefault();
         }
         if (button && !this.pendingSelection) {
@@ -226,15 +258,18 @@ export class TranslatorManager {
                 // The hold already triggered a re-translation; ignore the release click
                 this.hold = null;
                 this.pendingSelection = '';
+                this.pendingSelectionMesId = null;
                 return;
             }
             this.hold = null;
             const mes = button.closest('.mes');
             const id = Number(mes?.getAttribute('mesid'));
             const selection = this.pendingSelection;
+            const messageId = this.pendingSelectionMesId ?? this.getSelectionMessageId() ?? id;
             this.pendingSelection = '';
+            this.pendingSelectionMesId = null;
             if (selection) {
-                this.translateSelection(selection);
+                this.translateSelection(selection, messageId);
             } else if (Number.isInteger(id)) {
                 this.toggleMessageTranslation(id, event.shiftKey);
             }
@@ -245,9 +280,11 @@ export class TranslatorManager {
             event.preventDefault();
             event.stopPropagation();
             const selection = this.pendingSelection || this.getSelectedText();
+            const messageId = this.pendingSelectionMesId ?? this.getSelectionMessageId();
             this.pendingSelection = '';
+            this.pendingSelectionMesId = null;
             this.hideBubble();
-            if (selection) this.translateSelection(selection);
+            if (selection) this.translateSelection(selection, messageId);
         }
     }
 
@@ -263,6 +300,16 @@ export class TranslatorManager {
         const node = selection?.anchorNode;
         const element = node instanceof Element ? node : node?.parentElement;
         return !!element?.closest('#chat .mes_text');
+    }
+
+    getSelectionMessageId() {
+        const node = window.getSelection()?.anchorNode;
+        const element = node instanceof Element ? node : node?.parentElement;
+        const mes = element?.closest('#chat .mes_text')?.closest('.mes');
+        const rawId = mes?.getAttribute('mesid');
+        if (rawId == null || !rawId.trim()) return null;
+        const messageId = Number(rawId);
+        return Number.isInteger(messageId) ? messageId : null;
     }
 
     /* ------------------------------------------------------------------ */
@@ -389,7 +436,7 @@ export class TranslatorManager {
         }
     }
 
-    async translateSelection(text) {
+    async translateSelection(text, messageId = null) {
         const source = String(text ?? '').trim();
         if (!source) return;
 
@@ -401,7 +448,7 @@ export class TranslatorManager {
         try {
             const translation = await this.translate(source);
             if (!translation) return;
-            await this.showResultPopup(source, translation);
+            await this.showResultPopup(source, translation, messageId);
         } catch (error) {
             console.error('[IF Combo] Translation failed', error);
             toastr.error(String(error?.cause?.message || error?.message || error), t`Translation failed`);
@@ -410,8 +457,9 @@ export class TranslatorManager {
         }
     }
 
-    async showResultPopup(source, translation) {
+    async showResultPopup(source, translation, messageId = null) {
         const context = SillyTavern.getContext();
+        let current = translation;
 
         const wrapper = document.createElement('div');
         wrapper.classList.add('cct-translate-result');
@@ -431,19 +479,131 @@ export class TranslatorManager {
 
         wrapper.append(translated, details);
 
+        const options = {
+            wide: true,
+            allowVerticalScrolling: true,
+            okButton: t`Close`,
+        };
+        try {
+            if (context.Popup && context.POPUP_TYPE) {
+                const actions = document.createElement('div');
+                actions.classList.add('cct-translate-result-actions');
+
+                const retry = document.createElement('button');
+                retry.type = 'button';
+                retry.classList.add('menu_button');
+                const retryIcon = document.createElement('i');
+                retryIcon.classList.add('fa-solid', 'fa-rotate');
+                retry.append(retryIcon, t`Translate again`);
+
+                const replace = document.createElement('button');
+                replace.type = 'button';
+                replace.classList.add('menu_button');
+                const replaceIcon = document.createElement('i');
+                replaceIcon.classList.add('fa-solid', 'fa-right-left');
+                replace.append(replaceIcon, t`Replace original`);
+
+                actions.append(retry);
+                if (Number.isInteger(messageId) && context.chat?.[messageId]) actions.append(replace);
+                wrapper.insertBefore(actions, details);
+
+                const popup = new context.Popup(wrapper, context.POPUP_TYPE.TEXT, '', options);
+                let busy = false;
+                const setBusy = (value, retranslating = false) => {
+                    busy = value;
+                    retry.disabled = value;
+                    replace.disabled = value;
+                    retry.classList.toggle('cct-busy', value && retranslating);
+                    retryIcon.classList.toggle('fa-spin', value && retranslating);
+                };
+
+                retry.addEventListener('click', async () => {
+                    if (busy) return;
+                    setBusy(true, true);
+                    try {
+                        const result = await this.translate(source);
+                        if (result?.trim()) {
+                            current = result;
+                            translated.textContent = current;
+                        }
+                    } catch (error) {
+                        console.error('[IF Combo] Translation failed', error);
+                        toastr.error(String(error?.cause?.message || error?.message || error), t`Translation failed`);
+                    } finally {
+                        setBusy(false);
+                    }
+                });
+
+                replace.addEventListener('click', async () => {
+                    if (busy) return;
+                    setBusy(true);
+                    try {
+                        const ok = await this.replaceInMessage(messageId, source, current);
+                        if (ok) await popup.completeAffirmative();
+                    } finally {
+                        setBusy(false);
+                    }
+                });
+
+                await popup.show();
+                return;
+            }
+        } catch {
+            // Older hosts can still show the result without actions.
+            wrapper.querySelector('.cct-translate-result-actions')?.remove();
+        }
+
         try {
             if (context.callGenericPopup && context.POPUP_TYPE) {
-                await context.callGenericPopup(wrapper, context.POPUP_TYPE.TEXT, '', {
-                    wide: true,
-                    allowVerticalScrolling: true,
-                    okButton: t`Close`,
-                });
+                await context.callGenericPopup(wrapper, context.POPUP_TYPE.TEXT, '', options);
                 return;
             }
         } catch {
             // Fall through
         }
-        window.alert(translation);
+        window.alert(current);
+    }
+
+    async replaceInMessage(messageId, source, replacement) {
+        try {
+            const context = SillyTavern.getContext();
+            const message = context.chat?.[messageId];
+            if (!message) {
+                toastr.warning(t`The message no longer exists`);
+                return false;
+            }
+
+            const mes = String(message.mes ?? '');
+            const index = source ? mes.indexOf(source) : -1;
+            const match = index >= 0 ? { index, length: source.length } : findLooseMatch(mes, source);
+            if (!match) {
+                toastr.warning(t`Could not find the selected text in the original message. It may be showing a translation or contain formatting.`);
+                return false;
+            }
+
+            const newMes = mes.slice(0, match.index) + replacement + mes.slice(match.index + match.length);
+            message.mes = newMes;
+            if (Array.isArray(message.swipes) && Number.isInteger(message.swipe_id)) {
+                message.swipes[message.swipe_id] = newMes;
+            }
+            if (message.extra?.display_text) delete message.extra.display_text;
+
+            if (context.eventTypes?.MESSAGE_EDITED) {
+                await context.eventSource?.emit(context.eventTypes.MESSAGE_EDITED, messageId);
+            }
+            context.updateMessageBlock?.(messageId, message);
+            if (context.eventTypes?.MESSAGE_UPDATED) {
+                await context.eventSource?.emit(context.eventTypes.MESSAGE_UPDATED, messageId);
+            }
+            await context.saveChat();
+            this.apply();
+            toastr.success(t`Original text replaced`);
+            return true;
+        } catch (error) {
+            console.error('[IF Combo] Could not replace the original text', error);
+            toastr.error(String(error?.cause?.message || error?.message || error), t`Could not replace the original text`);
+            return false;
+        }
     }
 
     /* ------------------------------------------------------------------ */
